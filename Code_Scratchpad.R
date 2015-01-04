@@ -39,7 +39,6 @@ node.data_hard_wrapped <- lapply(node.data[['one']],
 		}
 )
 
-# See also the much clearer strwrap tutorial at http://www.endmemo.com/program/R/strwrap.php
 
 
 
@@ -57,4 +56,45 @@ plot(g)
 
 
 
+setwd("~/Desktop/Note-Taking_Network_Grapher/")
 
+data_file_to_start <- "./todo.txt"
+# Following http://stackoverflow.com/a/6603126, read in the file as a list:
+file1.text <- scan(data_file_to_start, what="list", sep="\n")
+
+# Bash should already have done this:
+# grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
+
+master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
+# Read the master tag list into a list:
+master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
+
+dataframe_to_use <- as.data.frame(file1.text, stringsAsFactors = FALSE)
+dataframe_to_use
+str(dataframe_to_use)
+
+# Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
+for(i in 1:length(master_tag_list)){
+	dataframe_to_use[[master_tag_list[i]]] <- 
+		#grepl(master_tag_list[[i]], file1.text)*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
+		grep(master_tag_list[[i]], file1.text)
+}
+dataframe_to_use
+
+#library('igraph')
+#install.packages('InteractiveIGraph')
+#library('InteractiveIGraph')
+
+# Loosely using the tutorial at http://duomenuanalize.lt/sna-interactive-graphs-working-directly-r-graphic-device
+#gOrg <- graph.famous("Heawood")
+#plot(gOrg)
+#X11(type="Xlib") # From http://stackoverflow.com/a/16673763, for Linux support.
+#g = InteractiveIGraph(gOrg)
+# THE ABOVE (FROM INTERACTIVEIGRAPH) ISN'T VERY COMPELLING
+
+# Following http://www.r-bloggers.com/simple-network-diagrams-in-r/
+#library(qgraph) 
+# NOT WORKING:
+# qgraph(dataframe_to_use, groups = factor(colnames(dataframe_to_use)[-1]))
+
+write.csv(dataframe_to_use, file="Binary_Matrix.csv", row.names=FALSE)
