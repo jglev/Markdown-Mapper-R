@@ -58,7 +58,7 @@ plot(g)
 
 setwd("~/Desktop/Note-Taking_Network_Grapher/")
 
-data_file_to_start <- "./todo.txt"
+data_file_to_start <- "./done2.txt"
 # Following http://stackoverflow.com/a/6603126, read in the file as a list:
 file1.text <- scan(data_file_to_start, what="list", sep="\n")
 
@@ -157,6 +157,9 @@ graph <- qgraph(
 	curve=1,
 	curveAll=TRUE,
 	directed=FALSE,
-	layout='spring' # Can also be 'groups' or 'circular'
+	layout='spring', # Can also be 'groups' or 'circular',
+	shape="circle",
+	border.width=.5,
+	labels=TRUE
 )
 
