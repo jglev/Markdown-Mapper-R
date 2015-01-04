@@ -44,19 +44,18 @@ binary_association_matrix <- data.frame(
 )
 
 # Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
-for(i in 1:length(node_text_dataframe[["hard_wrapped"]])){
-	text <- node_text_dataframe[["hard_wrapped"]][i]
-	for(j in 1:length(master_tag_list)){
-		tag <- master_tag_list[j]
+for(j in 1:length(master_tag_list)){
+	tag <- master_tag_list[j]
+
+	for(i in 1:length(node_text_dataframe[["hard_wrapped"]])){
+		text <- node_text_dataframe[["hard_wrapped"]][i]
+		
 		if(grepl(tag, text)){
 			row_to_append <- cbind(text, tag)
 			edge_list <- rbind(edge_list, row_to_append)
 		}
 	}
-}
 
-for(j in 1:length(master_tag_list)){
-	tag <- master_tag_list[j]
 	binary_association_matrix[[tag]] <- grepl(tag, node_text_dataframe[["hard_wrapped"]])*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
 }
 
