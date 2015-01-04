@@ -1,6 +1,6 @@
 setwd("~/Desktop/Note-Taking_Network_Grapher/")
 
-data_file_to_start <- "./done2.txt"
+data_file_to_start <- "./todo.txt"
 # Following http://stackoverflow.com/a/6603126, read in the file as a list:
 file1.text <- scan(data_file_to_start, what="list", sep="\n")
 
@@ -12,8 +12,8 @@ master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
 master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
 
 node_text_dataframe <- as.data.frame(file1.text, stringsAsFactors = FALSE)
-node_text_dataframe
-str(node_text_dataframe)
+# View(node_text_dataframe)
+# str(node_text_dataframe)
 
 # THIS WORKS FOR ARBITRARILY RESHAPING TEXT INTO BLOCKS, WITH \n SEPARATORS. This follows http://jeromyanglim.tumblr.com/post/33554853812/how-to-automatically-break-a-caption-over-multiple
 node_text_dataframe[["hard_wrapped"]] <- as.character(lapply(node_text_dataframe[['file1.text']], 
@@ -25,30 +25,39 @@ node_text_dataframe[["hard_wrapped"]] <- as.character(lapply(node_text_dataframe
 	 	)
 	 }
 ))
-View(node_text_dataframe)
-str(node_text_dataframe)
+# View(node_text_dataframe)
+# str(node_text_dataframe)
 
+# Clear memory from possible past runs of this script:
+#rm(edge_list)
+#rm(binary_association_matrix)
 
-rm(edge_list)
 edge_list <- data.frame(
-	Source=as.Date(character()), # Just create an empt dataframe for now, following http://stackoverflow.com/a/10689206
+	Source=character(), # Just create an empt dataframe for now, following http://stackoverflow.com/a/10689206
 	Target=character(), 
 	stringsAsFactors=FALSE
-) 
+)
+
+# Start a new dataframe. We'll fill it in below.
+binary_association_matrix <- data.frame(
+	Text=node_text_dataframe[["hard_wrapped"]]
+)
 
 # Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
 for(i in 1:length(node_text_dataframe[["hard_wrapped"]])){
 	text <- node_text_dataframe[["hard_wrapped"]][i]
 	for(j in 1:length(master_tag_list)){
-		tag <- master_tag_list[[j]]
+		tag <- master_tag_list[j]
 		if(grepl(tag, text)){
 			row_to_append <- cbind(text, tag)
 			edge_list <- rbind(edge_list, row_to_append)
 		}
-		
-		binary_association_matrix[[master_tag_list[i]]] <- 
-			grepl(master_tag_list[[i]], file1.text)*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
 	}
+}
+
+for(j in 1:length(master_tag_list)){
+	tag <- master_tag_list[j]
+	binary_association_matrix[[tag]] <- grepl(tag, node_text_dataframe[["hard_wrapped"]])*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
 }
 
 View(edge_list)
