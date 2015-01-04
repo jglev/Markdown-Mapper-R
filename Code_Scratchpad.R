@@ -6,10 +6,11 @@ file1.text <- scan(data_file_to_start, what="list", sep="\n")
 
 # Bash should already have done this:
 # grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
+master_tag_list <- system('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq', intern=TRUE)
 
-master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
+#master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
 # Read the master tag list into a list:
-master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
+#master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
 
 node_text_dataframe <- as.data.frame(file1.text, stringsAsFactors = FALSE)
 # View(node_text_dataframe)
