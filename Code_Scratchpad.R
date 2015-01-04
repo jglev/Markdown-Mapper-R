@@ -73,19 +73,23 @@ node_text_dataframe <- as.data.frame(file1.text, stringsAsFactors = FALSE)
 node_text_dataframe
 str(node_text_dataframe)
 
+
+
+
 rm(dataframe_to_use)
 dataframe_to_use <- data.frame(
-	Text=as.Date(character()), # Just create an empt dataframe for now, following http://stackoverflow.com/a/10689206
-	Tag=character(), 
+	text=as.Date(character()), # Just create an empt dataframe for now, following http://stackoverflow.com/a/10689206
+	tag=character(), 
 	stringsAsFactors=FALSE
 ) 
 
 # Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
-for(i in length(node_text_dataframe[['file1.text']])){
+for(i in 1:length(node_text_dataframe[['file1.text']])){
 	text <- node_text_dataframe[['file1.text']][i]
 	for(j in 1:length(master_tag_list)){
-		if(grepl(master_tag_list[[j]], text)){
-			row_to_append <- c(text, master_tag_list[[j]])
+		tag <- master_tag_list[[j]]
+		if(grepl(tag, text)){
+			row_to_append <- cbind(text, tag)
 			dataframe_to_use <- rbind(dataframe_to_use, row_to_append)
 			"Yes"
 			#dataframe_to_use[[master_tag_list[i]]] <- 
