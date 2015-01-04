@@ -69,16 +69,32 @@ master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
 # Read the master tag list into a list:
 master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
 
-dataframe_to_use <- as.data.frame(file1.text, stringsAsFactors = FALSE)
-dataframe_to_use
-str(dataframe_to_use)
+node_text_dataframe <- as.data.frame(file1.text, stringsAsFactors = FALSE)
+node_text_dataframe
+str(node_text_dataframe)
+
+rm(dataframe_to_use)
+dataframe_to_use <- data.frame(
+	Text=as.Date(character()), # Just create an empt dataframe for now, following http://stackoverflow.com/a/10689206
+	Tag=character(), 
+	stringsAsFactors=FALSE
+) 
 
 # Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
-for(i in 1:length(master_tag_list)){
-	dataframe_to_use[[master_tag_list[i]]] <- 
-		#grepl(master_tag_list[[i]], file1.text)*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
-		grep(master_tag_list[[i]], file1.text)
+for(i in length(node_text_dataframe[['file1.text']])){
+	text <- node_text_dataframe[['file1.text']][i]
+	for(j in 1:length(master_tag_list)){
+		if(grepl(master_tag_list[[j]], text)){
+			row_to_append <- c(text, master_tag_list[[j]])
+			dataframe_to_use <- rbind(dataframe_to_use, row_to_append)
+			"Yes"
+			#dataframe_to_use[[master_tag_list[i]]] <- 
+			#grepl(master_tag_list[[i]], file1.text)*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
+			#grep(master_tag_list[[i]], file1.text)
+		}
+	}
 }
+
 dataframe_to_use
 
 #library('igraph')
@@ -98,3 +114,23 @@ dataframe_to_use
 # qgraph(dataframe_to_use, groups = factor(colnames(dataframe_to_use)[-1]))
 
 write.csv(dataframe_to_use, file="Binary_Matrix.csv", row.names=FALSE)
+
+
+
+Edges <- data.frame(
+	from = rep(1:5,each=5),
+	to = rep(1:5,times=5)
+	#,
+	#thickness = abs(rnorm(25))
+	)
+
+Edges <- subset(Edges,from!=to)
+
+library('qgraph')
+qgraph(Edges,esize=5,gray=TRUE)
+
+qgraph(
+	cbind(dataframe_to_use[c('file1.text')]
+	,
+	c('+1',NA,NA,'+1'))
+	,esize=5,gray=TRUE)
