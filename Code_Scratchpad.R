@@ -73,7 +73,18 @@ node_text_dataframe <- as.data.frame(file1.text, stringsAsFactors = FALSE)
 node_text_dataframe
 str(node_text_dataframe)
 
-
+# THIS WORKS FOR ARBITRARILY RESHAPING TEXT INTO BLOCKS, WITH \n SEPARATORS. This follows http://jeromyanglim.tumblr.com/post/33554853812/how-to-automatically-break-a-caption-over-multiple
+node_text_dataframe[["hard_wrapped"]] <- as.character(lapply(node_text_dataframe[['file1.text']], 
+	 function(x){
+	 	paste(
+	 		strwrap(x, width=20, simplify=TRUE)
+	 		,
+	 		collapse = "\n"
+	 	)
+	 }
+))
+View(node_text_dataframe)
+str(node_text_dataframe)
 
 
 rm(dataframe_to_use)
@@ -84,8 +95,8 @@ dataframe_to_use <- data.frame(
 ) 
 
 # Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
-for(i in 1:length(node_text_dataframe[['file1.text']])){
-	text <- node_text_dataframe[['file1.text']][i]
+for(i in 1:length(node_text_dataframe[["hard_wrapped"]])){
+	text <- node_text_dataframe[["hard_wrapped"]][i]
 	for(j in 1:length(master_tag_list)){
 		tag <- master_tag_list[[j]]
 		if(grepl(tag, text)){
@@ -99,7 +110,7 @@ for(i in 1:length(node_text_dataframe[['file1.text']])){
 	}
 }
 
-dataframe_to_use
+View(dataframe_to_use)
 
 #library('igraph')
 #install.packages('InteractiveIGraph')
@@ -117,24 +128,35 @@ dataframe_to_use
 # NOT WORKING:
 # qgraph(dataframe_to_use, groups = factor(colnames(dataframe_to_use)[-1]))
 
-write.csv(dataframe_to_use, file="Binary_Matrix.csv", row.names=FALSE)
+str(dataframe_to_use)
+
+write.csv(dataframe_to_use, file="Edgelist.csv", row.names=FALSE, eol="\n", quote=TRUE)
 
 
 
-Edges <- data.frame(
-	from = rep(1:5,each=5),
-	to = rep(1:5,times=5)
-	#,
-	#thickness = abs(rnorm(25))
-	)
+# Edges <- data.frame(
+# 	from = rep(1:5,each=5),
+# 	to = rep(1:5,times=5)
+# 	#,
+# 	#thickness = abs(rnorm(25))
+# 	)
+# 
+# Edges <- subset(Edges,from!=to)
+# 
+# library('qgraph')
+# qgraph(Edges,esize=5,gray=TRUE)
 
-Edges <- subset(Edges,from!=to)
 
 library('qgraph')
-qgraph(Edges,esize=5,gray=TRUE)
 
-qgraph(
-	cbind(dataframe_to_use[c('file1.text')]
-	,
-	c('+1',NA,NA,'+1'))
-	,esize=5,gray=TRUE)
+graph <- qgraph(
+	dataframe_to_use,
+	esize=5,
+	gray=TRUE,
+	label.scale=TRUE,
+	curve=1,
+	curveAll=TRUE,
+	directed=FALSE,
+	layout='spring' # Can also be 'groups' or 'circular'
+)
+
