@@ -1,3 +1,12 @@
+##############################
+# NETWORK GRAPH FACILITATOR FOR GTD-STYLE (GETTING-THINGS-DONE-STYLE) NOTES
+# Jacob Levernier
+# AdUnumDatum.org
+# January 2015
+# Distributed under the GPLv2 License
+# (If you would like to redistribute the code under other license terms, please contact the author)
+##############################
+
 #setwd("~/Desktop/Note-Taking_Network_Grapher/")
 paste("Working from directory '", getwd(), "'...") # This will get the directory from which RScript is being called.
 
