@@ -1,12 +1,17 @@
 setwd("~/Desktop/Note-Taking_Network_Grapher/")
 
-data_file_to_start <- "./todo.txt"
+# Following http://stackoverflow.com/a/4574903, read in arguments passed through a bash call to this script (using, in bash, 'Rscript /path/to/this/Script.R')
+args <- commandArgs(TRUE)
+# print(args[2]) Print the second argument, as an example (args[2] is equivalent to $2 in a bash script).
+
+data_file_to_start <- #args[1]  
+	"./todo.txt"
 # Following http://stackoverflow.com/a/6603126, read in the file as a list:
 file1.text <- scan(data_file_to_start, what="list", sep="\n")
 
 # Bash should already have done this:
 # grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
-master_tag_list <- system('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq', intern=TRUE)
+master_tag_list <- system(paste('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ', data_file_to_start, ' | sort | uniq'), intern=TRUE) # This could be refactored into R code (rather than bash calls) later.
 
 #master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
 # Read the master tag list into a list:
@@ -60,8 +65,8 @@ for(j in 1:length(master_tag_list)){
 	binary_association_matrix[[tag]] <- grepl(tag, node_text_dataframe[["hard_wrapped"]])*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
 }
 
-View(edge_list)
-View(binary_association_matrix)
+# View(edge_list)
+# View(binary_association_matrix)
 
 write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, eol="\n", quote=TRUE)
 write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
@@ -69,9 +74,13 @@ write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.n
 # Make a network graph using the Edge List:
 
 library('qgraph')
+library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
+
+# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
+X11()
 
 graph <- qgraph(
-	edge_list,
+ 	edge_list,
 	esize=5,
 	gray=TRUE,
 	label.scale=TRUE,
@@ -82,5 +91,8 @@ graph <- qgraph(
 	shape="circle",
 	border.width=.5,
 	labels=TRUE
-)
+ )
 
+# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
+message("Press Return To Continue")
+invisible(readLines("stdin", n=1))
