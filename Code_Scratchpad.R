@@ -89,8 +89,8 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 
 # To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
 X11(
-	width=20,
-	height=15
+	width=11,
+	height=8.5
 	)
 graph <- qgraph(
  	edge_list,
@@ -105,6 +105,10 @@ graph <- qgraph(
 	border.width=.5,
 	labels=TRUE
  )
+
+# For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
+#library('playwith')
+#playwith(plot(graph))
 
 # To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
 message("Press Return To Continue. Press Y/y and then Return to save a PDF.")
