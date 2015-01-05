@@ -79,8 +79,6 @@ for(j in 1:length(master_tag_list)){
 # View(edge_list)
 # View(binary_association_matrix)
 
-write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, eol="\n", quote=TRUE)
-write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
 
 # Make a network graph using the Edge List:
 
@@ -141,6 +139,20 @@ if(user_typed_response == 'Y' || user_typed_response == 'y'){
 	dev.off()
 	
 	message("File saved to '", getwd(), "/", pdf_map_output_filename,"'")
+}
+
+
+# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
+message("Press Y/y and then Return to save CSV output. Otherwise, just press Return.")
+
+#invisible(
+user_typed_response <- readLines("stdin", n=1)
+#)
+
+if(user_typed_response == 'Y' || user_typed_response == 'y'){
+	write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, eol="\n", quote=TRUE)
+	
+	write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
 }
 
 
