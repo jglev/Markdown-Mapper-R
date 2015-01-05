@@ -88,7 +88,10 @@ library('qgraph')
 library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
 
 # To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
-X11()
+X11(
+	width=20,
+	height=15
+	)
 graph <- qgraph(
  	edge_list,
 	esize=5,
@@ -123,7 +126,7 @@ if(user_typed_response == 'Y' || user_typed_response == 'y'){
 		height=8.5,
 		title=plot_title # This is the title within the title.
 	)
-	par(oma=c(0,0,1,0)) # From http://stackoverflow.com/a/13631358. '?par' states that oma is 'a vector of the form c(bottom, left, top, right) giving the size of the outer margins in lines of text.' We're here adding space for a title.
+	par(oma=c(0,0,0,0)) # From http://stackoverflow.com/a/13631358. '?par' states that oma is 'a vector of the form c(bottom, left, top, right) giving the size of the outer margins in lines of text.' We're here adding space for a title.
 	plot(graph)
 	title(
 		main=NULL, 
