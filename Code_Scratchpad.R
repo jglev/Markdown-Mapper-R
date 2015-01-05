@@ -1,4 +1,5 @@
-setwd("~/Desktop/Note-Taking_Network_Grapher/")
+#setwd("~/Desktop/Note-Taking_Network_Grapher/")
+paste("Working from directory '", getwd(), "'...") # This will get the directory from which RScript is being called.
 
 # Following http://stackoverflow.com/a/4574903, read in arguments passed through a bash call to this script (using, in bash, 'Rscript /path/to/this/Script.R')
 args <- commandArgs(TRUE)
