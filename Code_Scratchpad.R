@@ -89,7 +89,6 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 
 # To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
 X11()
-
 graph <- qgraph(
  	edge_list,
 	esize=5,
@@ -105,5 +104,18 @@ graph <- qgraph(
  )
 
 # To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-message("Press Return To Continue")
-invisible(readLines("stdin", n=1))
+message("Press Return To Continue. Press Y/y and then Return to save a PDF")
+#invisible(
+user_typed_response <- readLines("stdin", n=1)
+#)
+
+if(user_typed_response == 'Y' || user_typed_response == 'y'){
+	# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
+
+	#png(file="animals45.png",width=1200,height=800,res=300)
+	pdf(file="Network_Map.pdf", width=11, height=8.5)
+	plot(graph)
+	dev.off()	
+}
+
+
