@@ -104,18 +104,36 @@ graph <- qgraph(
  )
 
 # To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-message("Press Return To Continue. Press Y/y and then Return to save a PDF")
+message("Press Return To Continue. Press Y/y and then Return to save a PDF.")
+
 #invisible(
 user_typed_response <- readLines("stdin", n=1)
 #)
 
 if(user_typed_response == 'Y' || user_typed_response == 'y'){
 	# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
-
+	
+	plot_title <- paste("Map of '", data_file_to_start, "'")
+	pdf_map_output_filename <- "Network_Map.pdf"
+	
 	#png(file="animals45.png",width=1200,height=800,res=300)
-	pdf(file="Network_Map.pdf", width=11, height=8.5)
+	pdf(
+		file=pdf_map_output_filename, 
+		width=11, 
+		height=8.5,
+		title=plot_title # This is the title within the title.
+	)
+	par(oma=c(0,0,1,0)) # From http://stackoverflow.com/a/13631358. '?par' states that oma is 'a vector of the form c(bottom, left, top, right) giving the size of the outer margins in lines of text.' We're here adding space for a title.
 	plot(graph)
-	dev.off()	
+	title(
+		main=NULL, 
+		sub=plot_title,
+		xlab=NULL,
+		ylab=NULL
+	)
+	dev.off()
+	
+	message("File saved to '", getwd(), "/", pdf_map_output_filename,"'")
 }
 
 
