@@ -16,7 +16,8 @@ args <- commandArgs(TRUE)
 
 data_file_to_start <- 
 	#args[1]
-	"./todo.txt"
+	#"./todo.txt"
+  "~/ownCloudSyncDirectory/Documents/todo/done.txt"
 # Following http://stackoverflow.com/a/6603126, read in the file as a list:
 file1.text <- scan(data_file_to_start, what="list", sep="\n")
 
@@ -30,16 +31,16 @@ file1.text <- scan(data_file_to_start, what="list", sep="\n")
 # regmatches('This is a test tester!', gregexpr('test\\w*','This is a test tester!'))
 
 # Perform the grep, returning all values (one vector per row):
-master_tag_list <- regmatches(
+tag_list_by_row <- regmatches(
   file1.text, 
   gregexpr('\\+\\w*',file1.text)
 )
 
 # Collapse the rows into a single vector:
-master_tag_list <- unlist(master_tag_list2)
+master_tag_list <- unlist(master_tag_list)
 
 # Get unique values from the single vector:
-master_tag_list <- unique(master_tag_list2)
+master_tag_list <- unique(master_tag_list)
 
 #master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
 # Read the master tag list into a list:
@@ -78,17 +79,28 @@ binary_association_matrix <- data.frame(
 )
 
 # Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
-for(j in 1:length(master_tag_list)){
-	tag <- master_tag_list[j]
 
-	for(i in 1:length(node_text_dataframe[["hard_wrapped"]])){
-		text <- node_text_dataframe[["hard_wrapped"]][i]
-		
-		if(grepl(tag, text)){
-			row_to_append <- cbind(text, tag)
-			edge_list <- rbind(edge_list, row_to_append)
-		}
-	}
+for(i in 1:length(tag_list_by_row)){
+  edge_list <- rbind(
+    edge_list,
+    cbind(
+      node_text_dataframe[["hard_wrapped"]][i],
+      (tag_list_by_row[[i]])
+    )
+  )
+}
+
+for(j in 1:length(master_tag_list)){
+  tag <- master_tag_list[j]
+
+# 	for(i in 1:length(node_text_dataframe[["hard_wrapped"]])){
+# 		text <- node_text_dataframe[["hard_wrapped"]][i]
+# 		
+# 		if(grepl(tag, text)){
+# 			row_to_append <- cbind(text, tag)
+# 			edge_list <- rbind(edge_list, row_to_append)
+# 		}
+# 	}
 
 	binary_association_matrix[[tag]] <- grepl(tag, node_text_dataframe[["hard_wrapped"]])*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
 }
