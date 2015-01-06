@@ -15,14 +15,31 @@ args <- commandArgs(TRUE)
 # As an example, print(args[1]) Print the first argument passed to the script. 'args[1]' is equivalent to '$1' in a bash script.
 
 data_file_to_start <- 
-	args[1]
-	#"./todo.txt"
+	#args[1]
+	"./todo.txt"
 # Following http://stackoverflow.com/a/6603126, read in the file as a list:
 file1.text <- scan(data_file_to_start, what="list", sep="\n")
 
 # Bash should already have done this:
 # grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
-master_tag_list <- system(paste('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ', data_file_to_start, ' | sort | uniq'), intern=TRUE) # This could be refactored into R code (rather than bash calls) later.
+# master_tag_list <- system(paste('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ', data_file_to_start, ' | sort | uniq'), intern=TRUE) # This could be refactored into R code (rather than bash calls) later.
+
+# THE ABOVE SYSTEM CALL IS NOW PORTED INTO STRAIGHT R:
+# See http://www.regular-expressions.info/rlanguage.html
+# An example: 
+# regmatches('This is a test tester!', gregexpr('test\\w*','This is a test tester!'))
+
+# Perform the grep, returning all values (one vector per row):
+master_tag_list <- regmatches(
+  file1.text, 
+  gregexpr('\\+\\w*',file1.text)
+)
+
+# Collapse the rows into a single vector:
+master_tag_list <- unlist(master_tag_list2)
+
+# Get unique values from the single vector:
+master_tag_list <- unique(master_tag_list2)
 
 #master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
 # Read the master tag list into a list:
