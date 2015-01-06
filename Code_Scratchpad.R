@@ -17,7 +17,7 @@ args <- commandArgs(TRUE)
 data_file_to_start <- 
 	#args[1]
 	#"./todo.txt"
-  "~/ownCloudSyncDirectory/Documents/todo/done.txt"
+  "~/ownCloudSyncDirectory/Documents/todo/todo.txt"
 # Following http://stackoverflow.com/a/6603126, read in the file as a list:
 file1.text <- scan(data_file_to_start, what="list", sep="\n")
 
@@ -37,7 +37,7 @@ tag_list_by_row <- regmatches(
 )
 
 # Collapse the rows into a single vector:
-master_tag_list <- unlist(master_tag_list)
+master_tag_list <- unlist(tag_list_by_row)
 
 # Get unique values from the single vector:
 master_tag_list <- unique(master_tag_list)
@@ -81,11 +81,12 @@ binary_association_matrix <- data.frame(
 # Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
 
 for(i in 1:length(tag_list_by_row)){
-  edge_list <- rbind(
+  edge_list <- 
+    rbind(
     edge_list,
     cbind(
       node_text_dataframe[["hard_wrapped"]][i],
-      (tag_list_by_row[[i]])
+      tag_list_by_row[i]
     )
   )
 }
