@@ -9,11 +9,13 @@ A fourth test here +1
 
 * Line after blank line
 
-	* Sub line after blank line.
+	* Sub line after blank line. 
+		{{This is an idea}}
 
-		* Two indentations
+		* Two indentations L>
 
 1. Ordered list 1
-2. Ordered list 2.
+2. -->Ordered list 2.<--
+-->Not full nota bene.
 
 3. Ordered list 3.

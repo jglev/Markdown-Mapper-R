@@ -26,11 +26,33 @@ file1.meta_information <- list()
 file1.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file1.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
 
 # Strip leading tabs off of each line:
-file1.stripped_text <- sub("^(\t*)", "", file1.text)
+file1.stripped_text <- sub("^\t*", "", file1.text)
 
 file1.meta_information$is_part_of_unordered_list <- grepl("^\\*", file1.stripped_text) # Note whether each line is part of an unordered list (starting with '*')
 
 file1.meta_information$is_part_of_ordered_list <-	grepl("^[0-9]\\.", file1.stripped_text) # Note whether each line is part of an ordered list (starting with, e.g. '1.')
+
+# Strip out leading * or [0.-9.] list markers:
+file1.stripped_text <- sub("^\\*\\s?", "", file1.stripped_text)
+file1.stripped_text <- sub("^[0-9]\\.\\s", "", file1.stripped_text)
+
+
+# Check for the presence of several special character combinations:
+# --> blah blah <-- Nota Bene (a note of extra importance)
+# {{ blah blah }} Note to self / Original Idea
+# L> Explicit link to previous line.
+
+file1.meta_information$contains_nota_bene_note <-	grepl("-->.*<--", file1.stripped_text)
+file1.meta_information$contains_note_to_self <-	grepl("\\{\\{.*\\}\\}", file1.stripped_text)
+file1.meta_information$contains_explicit_link_to_previous_line <-	grepl("L>", file1.stripped_text)
+
+View(file1.meta_information)
+
+
+
+
+
+
 
 
 
