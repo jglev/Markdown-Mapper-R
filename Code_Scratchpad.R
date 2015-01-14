@@ -21,7 +21,7 @@ args <- commandArgs(TRUE)
 
 
 # PLAN FOR MULTIPLE-FILES:
-# Scan each file given in $args, and record the source file for each in the metadata list below. This can then be built into the edge list created below.
+# Scan each file given in $args, and record the source file for each in the metadata list below (do an apply() loop over args(), then concat all lines into one big object, with the metadata list recording the source for each line). This can then be built into the edge list created below.
 
 
 
