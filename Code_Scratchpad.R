@@ -121,6 +121,45 @@ for(j in 1:length(master_tag_list)){
 library('qgraph')
 library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
 
+
+
+
+
+
+
+
+# WORKING EXAMPLE CODE MODIFIED FROM http://sachaepskamp.com/qgraph/examples
+# TO GET AN ADJACENCY MATRIX WORKING, THE BIG THING IS TO GET THE COLUMN NAMES SET.
+
+set.seed(1)
+adj = matrix(sample(0:1, 10^2, TRUE, prob = c(0.8, 0.2)), nrow = 10, ncol = 10)
+
+rownames(adj) <- NULL #c('a','b','c','d','e','f','g','h','i','j') # ROWNAMES works fine, but doesn't seem to influence the graph one way or another.
+
+colnames(adj) <- c('a','b','c','d','e','f','g','h','i','j')
+
+qgraph(adj)
+title("Unweighted and directed graphs", line = 2.5)
+
+
+
+
+########################
+# UPDATE: VUE IS GOOD WITH EDGE LISTS (and adjacency matrices, although for adjacency matrices, it prints all 0- or NA-relationship links (so you have to search for '0' and delete them). 
+#
+# TO USE AN EDGE LIST WITH VIEW: Have three columns: one for source, one for target, and one for relationship (this column can be blank, but should be there). Then, in VUE, go to Windows -> Datasets, and click "+" to import a dataset. **Set "Import as Matrix Data" to TRUE.** Then say that the dataset is "Tall" ("Wide" would be for an adjacency matrix, or correlation matrix, etc.). Select the source, target, and relationship columns. Then you're good to go!!!
+########################
+
+
+
+
+
+
+
+
+
+
+
 # To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
 X11(
 	width=11,
