@@ -7,7 +7,7 @@
 # (If you would like to redistribute the code under other license terms, please contact the author)
 ##############################
 
-#setwd("~/Desktop/Note-Taking_Network_Grapher/")
+setwd("~/Desktop/Note-Taking_Network_Grapher/")
 paste("Working from directory '", getwd(), "'...") # This will get the directory from which RScript is being called.
 
 # Following http://stackoverflow.com/a/4574903, read in arguments passed through a bash call to this script (using, in bash, 'Rscript /path/to/this/Script.R')
@@ -15,10 +15,24 @@ args <- commandArgs(TRUE)
 # As an example, print(args[1]) Print the first argument passed to the script. 'args[1]' is equivalent to '$1' in a bash script.
 
 data_file_to_start <- 
-	args[1]
-	#"./todo.txt"
+	#args[1]
+	"./todo.txt"
 # Following http://stackoverflow.com/a/6603126, read in the file as a list:
-file1.text <- scan(data_file_to_start, what="list", sep="\n")
+file1.text <- scan(data_file_to_start, what="list", sep="\n", blank.lines.skip=TRUE) # Note that blank.lines.skip=TRUE will skip all blank lines in the file.
+
+# Create a blank list to fill in:
+file1.meta_information <- list()
+
+file1.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file1.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
+
+# Strip leading tabs off of each line:
+file1.stripped_text <- sub("^(\t*)", "", file1.text)
+
+file1.meta_information$is_part_of_unordered_list <- grepl("^\\*", file1.stripped_text) # Note whether each line is part of an unordered list (starting with '*')
+
+file1.meta_information$is_part_of_ordered_list <-	grepl("^[0-9]\\.", file1.stripped_text) # Note whether each line is part of an ordered list (starting with, e.g. '1.')
+
+
 
 # Bash should already have done this:
 # grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
