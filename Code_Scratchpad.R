@@ -8,11 +8,29 @@
 ##############################
 
 setwd("~/Desktop/Note-Taking_Network_Grapher/")
+
+
 paste("Working from directory '", getwd(), "'...") # This will get the directory from which RScript is being called.
 
 # Following http://stackoverflow.com/a/4574903, read in arguments passed through a bash call to this script (using, in bash, 'Rscript /path/to/this/Script.R')
 args <- commandArgs(TRUE)
 # As an example, print(args[1]) Print the first argument passed to the script. 'args[1]' is equivalent to '$1' in a bash script.
+
+
+
+
+
+# PLAN FOR MULTIPLE-FILES:
+# Scan each file given in $args, and record the source file for each in the metadata list below. This can then be built into the edge list created below.
+
+
+
+
+
+
+
+
+
 
 data_file_to_start <- 
 	#args[1]
