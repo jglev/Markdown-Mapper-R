@@ -69,6 +69,22 @@ View(file1.meta_information)
 
 
 
+###################
+# FURTHER PLANNING
+# * JUST CREATE AN EDGE LIST, AND THEN CONVERT IT FROM "LONG"/"TALL" FORM TO "WIDE" FORM (I.E., AN ADJACENCY MATRIX) IN ONE STEP:
+# 
+###################
+
+# Following http://stackoverflow.com/a/25487162, use igraph to get an adjacency matrix from our edge list:
+library(igraph)
+
+adjacency_matrix <- as.matrix(
+	get.adjacency(
+		graph.edgelist(as.matrix(edge_list), directed=FALSE)
+	)
+)
+
+
 
 
 
