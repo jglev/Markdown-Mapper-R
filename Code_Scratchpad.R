@@ -23,6 +23,22 @@ args <- commandArgs(TRUE)
 # PLAN FOR MULTIPLE-FILES:
 # Scan each file given in $args, and record the source file for each in the metadata list below (do an apply() loop over args(), then concat all lines into one big object, with the metadata list recording the source for each line). This can then be built into the edge list created below.
 
+
+
+
+
+data_file_to_start <- 
+	#args[1]
+	"./todo.txt"
+# Following http://stackoverflow.com/a/6603126, read in the file as a list:
+file1.text <- scan(data_file_to_start, what="list", sep="\n", blank.lines.skip=TRUE) # Note that blank.lines.skip=TRUE will skip all blank lines in the file.
+
+# Create a blank list to fill in:
+file1.meta_information <- list()
+
+
+
+
 # Find metadata for the file that's been fenced off at the top of the file with a leading and trailing '---' on its own line (like this (without the comment delimeters):
 #---
 #Title: Test
@@ -42,11 +58,9 @@ if(!any(is.na(file_yaml_metadata_fence_lines))){
 	# Split each metadata string by the first instance of ": ". This approach comes from http://stackoverflow.com/a/26247455
 	yaml_metadata_for_file.parsed <- regmatches(yaml_metadata_for_file.unparsed, regexpr(": ", yaml_metadata_for_file.unparsed), invert = TRUE)
 	
-	lapply(
-		yaml_metadata_for_file.parsed, 
-		function(metadata_line) {
-			file1.meta_information$metadata_line[[2]] <- metadata_line[[2]]
-	})
+	for(metadata_line in yaml_metadata_for_file.parsed) {
+		file1.meta_information$metadata_line[[1]] <- metadata_line[[2]]
+	}
 	
 }
 
@@ -56,10 +70,10 @@ tester[5] <- "Gp"
 # A DEMONSTRATION OF GETTING apply() TO WRITE VARIABLES OUTSIDE OF ITSELF, BY GOING OUTSIDE OF ITS NORMAL SCOPE:
 # This is per http://stackoverflow.com/a/2657002. Both it and http://stackoverflow.com/a/2657002 recommend using a for loop when variable writing is the goal.
 sapply(1:3, 
-	function(number){
-		tester[number] <<- number
-		tester2 <<- 2
-})
+			 function(number){
+			 	tester[number] <<- number
+			 	tester2 <<- 2
+			 })
 
 
 
@@ -67,14 +81,10 @@ sapply(1:3,
 
 
 
-data_file_to_start <- 
-	#args[1]
-	"./todo.txt"
-# Following http://stackoverflow.com/a/6603126, read in the file as a list:
-file1.text <- scan(data_file_to_start, what="list", sep="\n", blank.lines.skip=TRUE) # Note that blank.lines.skip=TRUE will skip all blank lines in the file.
 
-# Create a blank list to fill in:
-file1.meta_information <- list()
+
+
+
 
 file1.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file1.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
 
