@@ -7,9 +7,7 @@
 # (If you would like to redistribute the code under other license terms, please contact the author)
 ##############################
 
-setwd("~/Desktop/Note-Taking_Network_Grapher/")
-
-
+#setwd("~/Desktop/Note-Taking_Network_Grapher/")
 paste("Working from directory '", getwd(), "'...") # This will get the directory from which RScript is being called.
 
 # Following http://stackoverflow.com/a/4574903, read in arguments passed through a bash call to this script (using, in bash, 'Rscript /path/to/this/Script.R')
@@ -36,8 +34,22 @@ file1.text <- scan(data_file_to_start, what="list", sep="\n", blank.lines.skip=T
 # Create a blank list to fill in:
 file1.meta_information <- list()
 
+# THE ABOVE SYSTEM CALL IS NOW PORTED INTO STRAIGHT R:
+# See http://www.regular-expressions.info/rlanguage.html
+# An example: 
+# regmatches('This is a test tester!', gregexpr('test\\w*','This is a test tester!'))
 
+# Perform the grep, returning all values (one vector per row):
+tag_list_by_row <- regmatches(
+  file1.text, 
+  gregexpr('\\+\\w*',file1.text)
+)
 
+# Collapse the rows into a single vector:
+master_tag_list <- unlist(tag_list_by_row)
+
+# Get unique values from the single vector:
+master_tag_list <- unique(master_tag_list)
 
 # Find metadata for the file that's been fenced off at the top of the file with a leading and trailing '---' on its own line (like this (without the comment delimeters):
 #---
@@ -122,7 +134,7 @@ file1.meta_information$contains_explicit_link_to_previous_line <-	grepl("L>", fi
 # Read the master tag list into a list:
 #master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
 
-#node_text_dataframe <- as.data.frame(file1.stripped_text, stringsAsFactors = FALSE)
+node_text_dataframe <- as.data.frame(file1.text, stringsAsFactors = FALSE)
 # View(node_text_dataframe)
 # str(node_text_dataframe)
 
@@ -148,12 +160,18 @@ file1.meta_information$hard_wrapped_text <- file1.hard_wrapped_text
 
 edge_list <- data.frame(
 	Source=character(), # Just create an empt dataframe for now, following http://stackoverflow.com/a/10689206
-	Relationship=character(),
 	Target=character(), 
 	stringsAsFactors=FALSE
 )
 
+# Start a new dataframe. We'll fill it in below.
+binary_association_matrix <- data.frame(
+	Text=node_text_dataframe[["hard_wrapped"]]
+)
 
+# Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
+for(j in 1:length(master_tag_list)){
+	tag <- master_tag_list[j]
 
 
 # Loop through the text and make an edge list from it:
@@ -235,6 +253,7 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 	
 
 
+# Make a network graph using the Edge List:
 
 	
 	
@@ -245,6 +264,8 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 
 View(edge_list)	
 	
+	plot_title <- paste("Map of '", data_file_to_start, "'")
+	pdf_map_output_filename <- "Network_Map.pdf"
 	
 	
 	
@@ -335,6 +356,7 @@ View(merge(edge_list, file1.meta_information, by.x="Source", by.y="hard_wrapped_
 		border.width=.5,
 		labels=TRUE
 	)
+	dev.off()
 	
 	# For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
 	#library('playwith')
