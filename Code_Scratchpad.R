@@ -193,6 +193,45 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 	}
 
 	
+	#######################################
+	# If line is part of an ordered list (1., 2., 3., etc.), if the next line up with the same indentation is also part of an ordered list, make an edge between them.
+	#######################################
+	
+	if(file1.meta_information$is_part_of_ordered_list[line_number] == TRUE && line_number > 1){
+			possible_higher_list_item_line_numbers <- which(
+				file1.meta_information$number_of_leading_tabs[1:(line_number-1)] == number_of_leading_tabs_for_this_line
+				& file1.meta_information$is_part_of_ordered_list[1:(line_number-1)] == TRUE
+			) # I could use which.max() here, but it doesn't do a good job when there are no matches. Also, '&' is used here because it is vectorized, whereas '&&' is not, per http://stackoverflow.com/a/15141015
+			
+			# If the search above for other line numbers yielded a match (i.e., likely_parent_line_number is not "integer(0)" (which is how R shows no match here)), add it to the edge list (in the format Source, Relationship, Target):
+			if(length(possible_higher_list_item_line_numbers) != 0) {
+				likely_parent_list_item_line_number <- max(possible_higher_list_item_line_numbers)
+				
+				# Check if there are non-ordered-list items in between this possible parent line and the current text_line at the same indentation level. If there are, then these two lines are probably not part of the same list. If there aren't, then we'll make an edge between the two lines:
+				are_there_intervening_lines_that_arent_part_of_list <- (which(
+					file1.meta_information$number_of_leading_tabs[likely_parent_list_item_line_number:line_number] == number_of_leading_tabs_for_this_line
+					& file1.meta_information$is_part_of_ordered_list[likely_parent_list_item_line_number:line_number] == FALSE
+				) != 0)
+				
+				if(are_there_intervening_lines_that_arent_part_of_list == FALSE){
+					edge_list <- rbind(edge_list, data.frame(
+						Source = file1.hard_wrapped_text[likely_parent_list_item_line_number],
+						Relationship = "List Item",
+						Target = text_line
+					))
+				}
+			}
+	} # End of if statement for ordered list.
+	
+	
+	
+
+	#######################################
+	# If line contains tags, make edge list entries for each
+	#######################################
+	
+	
+	
 
 
 
