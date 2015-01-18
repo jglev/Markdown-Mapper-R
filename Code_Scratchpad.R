@@ -39,18 +39,6 @@ file1.meta_information <- list()
 # An example: 
 # regmatches('This is a test tester!', gregexpr('test\\w*','This is a test tester!'))
 
-# Perform the grep, returning all values (one vector per row):
-tag_list_by_row <- regmatches(
-  file1.text, 
-  gregexpr('\\+\\w*',file1.text)
-)
-
-# Collapse the rows into a single vector:
-master_tag_list <- unlist(tag_list_by_row)
-
-# Get unique values from the single vector:
-master_tag_list <- unique(master_tag_list)
-
 # Find metadata for the file that's been fenced off at the top of the file with a leading and trailing '---' on its own line (like this (without the comment delimeters):
 #---
 #Title: Test
@@ -105,7 +93,17 @@ file1.meta_information$contains_explicit_link_to_previous_line <-	grepl("L>", fi
 #View(file1.meta_information)
 
 
+# Perform the grep, returning all values (one vector per row):
+tag_list_by_row <- regmatches(
+	file1.text, 
+	gregexpr('\\+\\w*',file1.text)
+)
 
+# Collapse the rows into a single vector:
+master_tag_list <- unlist(tag_list_by_row)
+
+# Get unique values from the single vector:
+master_tag_list <- unique(master_tag_list)
 
 
 
@@ -292,7 +290,7 @@ edge_list <- rbind(
 View(edge_list)
 
 
-write.csv(edge_list_merged_with_metadata, file="Edge_List.csv", row.names=FALSE, na="")
+write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, na="")
 write.csv(file1.meta_information, file="Meta_Information.csv", row.names=FALSE, na="")
 
 
