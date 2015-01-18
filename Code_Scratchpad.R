@@ -74,11 +74,10 @@ if(!any(is.na(file_yaml_metadata_fence_lines))){
 	for(metadata_line in yaml_metadata_for_file.parsed) {
 		file1.meta_information[[metadata_line[[1]]]] <- rep(metadata_line[[2]], length(file1.text))
 	}
-	
-	# Further fill in the metadata table:
-	file1.meta_information$file_name <- data_file_to_start
-	
-}
+} # End of YAML loop
+
+# Further fill in the metadata table:
+file1.meta_information$file_name <- data_file_to_start
 
 file1.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file1.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
 
@@ -254,16 +253,27 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 	
 } # End of loop through text.
 	
-	
 
-View(edge_list)	
+edge_list_merged_with_metadata <- merge(edge_list, file1.meta_information, by.x="Source", by.y="hard_wrapped_text")
+View(edge_list_merged_with_metadata)	
+
+
+
+write.csv(edge_list_merged_with_metadata, file="Edge_List.csv", row.names=FALSE, na="")
+write.csv(file1.meta_information, file="Meta_Information.csv", row.names=FALSE, na="")
+
+
+
+
+
+
+
 	
 	plot_title <- paste("Map of '", data_file_to_start, "'")
 	pdf_map_output_filename <- "Network_Map.pdf"
 	
 	
 	
-View(merge(edge_list, file1.meta_information, by.x="Source", by.y="hard_wrapped_text"))
 	
 	
 	
