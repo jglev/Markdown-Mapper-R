@@ -23,8 +23,43 @@ args <- commandArgs(TRUE)
 # PLAN FOR MULTIPLE-FILES:
 # Scan each file given in $args, and record the source file for each in the metadata list below (do an apply() loop over args(), then concat all lines into one big object, with the metadata list recording the source for each line). This can then be built into the edge list created below.
 
+# Find metadata for the file that's been fenced off at the top of the file with a leading and trailing '---' on its own line (like this (without the comment delimeters):
+#---
+#Title: Test
+#Author: Test
+#Year: 2015
+#---
 
+file_yaml_metadata_fence_lines <- grep('^---', file1.text, perl=TRUE)[1:2]
 
+# If we've found two '---' strings, we'll assume that they're metadata fences. In that case, we'll parse the metadata and add it to the metadata object. Otherwise, we'll skip this part.
+if(!any(is.na(file_yaml_metadata_fence_lines))){
+	yaml_metadata_for_file.unparsed <- file1.text[(file_yaml_metadata_fence_lines[1]+1):(file_yaml_metadata_fence_lines[2]-1)]
+	
+	# Remove those lines from the originally-read lines from the file:
+	file1.text <- file1.text[-((file_yaml_metadata_fence_lines[1]):(file_yaml_metadata_fence_lines[2]))]
+	
+	# Split each metadata string by the first instance of ": ". This approach comes from http://stackoverflow.com/a/26247455
+	yaml_metadata_for_file.parsed <- regmatches(yaml_metadata_for_file.unparsed, regexpr(": ", yaml_metadata_for_file.unparsed), invert = TRUE)
+	
+	lapply(
+		yaml_metadata_for_file.parsed, 
+		function(metadata_line) {
+			file1.meta_information$metadata_line[[2]] <- metadata_line[[2]]
+	})
+	
+}
+
+tester <- list()
+tester[5] <- "Gp"
+
+# A DEMONSTRATION OF GETTING apply() TO WRITE VARIABLES OUTSIDE OF ITSELF, BY GOING OUTSIDE OF ITS NORMAL SCOPE:
+# This is per http://stackoverflow.com/a/2657002. Both it and http://stackoverflow.com/a/2657002 recommend using a for loop when variable writing is the goal.
+sapply(1:3, 
+	function(number){
+		tester[number] <<- number
+		tester2 <<- 2
+})
 
 
 
@@ -72,7 +107,6 @@ View(file1.meta_information)
 ###################
 # FURTHER PLANNING
 # * JUST CREATE AN EDGE LIST, AND THEN CONVERT IT FROM "LONG"/"TALL" FORM TO "WIDE" FORM (I.E., AN ADJACENCY MATRIX) IN ONE STEP:
-# 
 ###################
 
 # Following http://stackoverflow.com/a/25487162, use igraph to get an adjacency matrix from our edge list:
