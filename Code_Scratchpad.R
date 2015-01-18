@@ -153,7 +153,23 @@ file1.hard_wrapped_text <- as.character(lapply(file1.stripped_text,
 
 
 # Add the actual hard-wrapped text to the meta information object, so that we know which line we're talking about. This will also make the hard-wrapped text the primary key on which to join the meta information and edge list in programs like Visual Understanding Environment.
-file1.meta_information$hard_wrapped_text <- file1.hard_wrapped_text
+# NOTE WELL that file1.meta_information should be ordered such that the 'hard_wrapped_text' column comes first. This will make programs like Visual Understanding Environment parse it better.
+file1.meta_information <- data.frame(
+	hard_wrapped_text = file1.hard_wrapped_text, 
+	file1.meta_information
+)
+
+
+#file1.meta_information <- file1.meta_information[c("hard_wrapped_text", "id", "weight")]
+column_number_of_hard_wrapped_text
+file1.meta_information[
+	c(
+		which(names(file1.meta_information) == "hard_wrapped_text"),
+		which(
+			1:length(file1.meta_information) != 
+			which(names(file1.meta_information) == "hard_wrapped_text"))
+	)
+]
 
 
 # Clear memory from possible past runs of this script:
