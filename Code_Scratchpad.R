@@ -75,6 +75,9 @@ if(!any(is.na(file_yaml_metadata_fence_lines))){
 		file1.meta_information[[metadata_line[[1]]]] <- rep(metadata_line[[2]], length(file1.text))
 	}
 	
+	# Further fill in the metadata table:
+	file1.meta_information$file_name <- data_file_to_start
+	
 }
 
 file1.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file1.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
@@ -164,15 +167,6 @@ edge_list <- data.frame(
 	stringsAsFactors=FALSE
 )
 
-# Start a new dataframe. We'll fill it in below.
-binary_association_matrix <- data.frame(
-	Text=node_text_dataframe[["hard_wrapped"]]
-)
-
-# Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
-for(j in 1:length(master_tag_list)){
-	tag <- master_tag_list[j]
-
 
 # Loop through the text and make an edge list from it:
 for(line_number in 1:length(file1.hard_wrapped_text)){
@@ -226,10 +220,10 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 				likely_parent_list_item_line_number <- max(possible_higher_list_item_line_numbers)
 				
 				# Check if there are non-ordered-list items in between this possible parent line and the current text_line at the same indentation level. If there are, then these two lines are probably not part of the same list. If there aren't, then we'll make an edge between the two lines:
-				are_there_intervening_lines_that_arent_part_of_list <- (which(
+				are_there_intervening_lines_that_arent_part_of_list <- (length(which(
 					file1.meta_information$number_of_leading_tabs[likely_parent_list_item_line_number:line_number] == number_of_leading_tabs_for_this_line
 					& file1.meta_information$is_part_of_ordered_list[likely_parent_list_item_line_number:line_number] == FALSE
-				) != 0)
+				)) != 0)
 				
 				if(are_there_intervening_lines_that_arent_part_of_list == FALSE){
 					edge_list <- rbind(edge_list, data.frame(
@@ -248,15 +242,15 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 	# If line contains tags, make edge list entries for each
 	#######################################
 	
-	
-	
-	
-
-
-# Make a network graph using the Edge List:
-
-	
-	
+	if(length(tag_list_by_row[line_number][[1]]) > 0){ # [[1]] here is because each row of tag_list_by_row is itself a list.
+		for(tag in tag_list_by_row[line_number][[1]]){
+			edge_list <- rbind(edge_list, data.frame(
+				Source = file1.hard_wrapped_text[line_number],
+				Relationship = "Tag",
+				Target = tag
+			))
+		}
+	}
 	
 } # End of loop through text.
 	
