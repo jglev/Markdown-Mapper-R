@@ -303,36 +303,13 @@ write.csv(file1.meta_information, file="Meta_Information.csv", row.names=FALSE, 
 	plot_title <- paste("Map of '", data_file_to_start, "'")
 	pdf_map_output_filename <- "Network_Map.pdf"
 	
-	
-	
-	
-	
-	
-	
-	# Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
-	for(j in 1:length(master_tag_list)){
-		tag <- master_tag_list[j]
-		
-		for(i in 1:length(node_text_dataframe[["hard_wrapped"]])){
-			text <- node_text_dataframe[["hard_wrapped"]][i]
-			
-			if(grepl(tag, text)){
-				row_to_append <- cbind(text, tag)
-				edge_list <- rbind(edge_list, row_to_append)
-			}
-		}
-		
-		binary_association_matrix[[tag]] <- grepl(tag, node_text_dataframe[["hard_wrapped"]])*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
-	}
-	
-	# View(edge_list)
-	# View(binary_association_matrix)
-	
-	
-	# Make a network graph using the Edge List:
-	
-	library('qgraph')
-	library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
+
+
+# Make a network graph using the Edge List:
+
+library('qgraph')
+library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
+
 	
 	
 	
@@ -340,23 +317,7 @@ write.csv(file1.meta_information, file="Meta_Information.csv", row.names=FALSE, 
 	
 	
 	
-	
-	# WORKING EXAMPLE CODE MODIFIED FROM http://sachaepskamp.com/qgraph/examples
-	# TO GET AN ADJACENCY MATRIX WORKING, THE BIG THING IS TO GET THE COLUMN NAMES SET.
-	
-	set.seed(1)
-	adj = matrix(sample(0:1, 10^2, TRUE, prob = c(0.8, 0.2)), nrow = 10, ncol = 10)
-	
-	rownames(adj) <- NULL #c('a','b','c','d','e','f','g','h','i','j') # ROWNAMES works fine, but doesn't seem to influence the graph one way or another.
-	
-	colnames(adj) <- c('a','b','c','d','e','f','g','h','i','j')
-	
-	qgraph(adj)
-	title("Unweighted and directed graphs", line = 2.5)
-	
-	
-	
-	
+
 	########################
 	# UPDATE: VUE IS GOOD WITH EDGE LISTS (and adjacency matrices, although for adjacency matrices, it prints all 0- or NA-relationship links (so you have to search for '0' and delete them). 
 	#
@@ -369,79 +330,79 @@ write.csv(file1.meta_information, file="Meta_Information.csv", row.names=FALSE, 
 	
 	
 	
-	
-	
-	
-	
-	# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
-	X11(
-		width=11,
-		height=8.5
-	)
-	graph <- qgraph(
-		edge_list,
-		esize=5,
-		gray=TRUE,
-		label.scale=TRUE,
-		curve=1,
-		curveAll=TRUE,
-		directed=FALSE,
-		layout='spring', # Can also be 'groups' or 'circular',
-		shape="circle",
-		border.width=.5,
-		labels=TRUE
-	)
-	dev.off()
+
+
+
+
+# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
+X11(
+	width=11,
+	height=8.5
+)
+graph <- qgraph(
+	edge_list[c("Source", "Target")],
+	esize=5,
+	gray=TRUE,
+	label.scale=TRUE,
+	curve=1,
+	curveAll=TRUE,
+	directed=FALSE,
+	layout='spring', # Can also be 'groups' or 'circular',
+	shape="circle",
+	border.width=.5,
+	labels=TRUE
+)
+dev.off()
 	
 	# For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
 	#library('playwith')
 	#playwith(plot(graph))
 	
-	# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-	message("Press Return To Continue. Press Y/y and then Return to save a PDF.")
+# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
+message("Press Return To Continue. Press Y/y and then Return to save a PDF.")
+
+#invisible(
+user_typed_response <- readLines("stdin", n=1)
+#)
+
+if(user_typed_response == 'Y' || user_typed_response == 'y'){
+	# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
 	
-	#invisible(
-	user_typed_response <- readLines("stdin", n=1)
-	#)
+	plot_title <- paste("Map of '", data_file_to_start, "'")
+	pdf_map_output_filename <- "Network_Map.pdf"
 	
-	if(user_typed_response == 'Y' || user_typed_response == 'y'){
-		# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
-		
-		plot_title <- paste("Map of '", data_file_to_start, "'")
-		pdf_map_output_filename <- "Network_Map.pdf"
-		
-		#png(file="animals45.png",width=1200,height=800,res=300)
-		pdf(
-			file=pdf_map_output_filename, 
-			width=11, 
-			height=8.5,
-			title=plot_title # This is the title within the title.
-		)
-		par(oma=c(0,0,0,0)) # From http://stackoverflow.com/a/13631358. '?par' states that oma is 'a vector of the form c(bottom, left, top, right) giving the size of the outer margins in lines of text.' We're here adding space for a title.
-		plot(graph)
-		title(
-			main=NULL, 
-			sub=plot_title,
-			xlab=NULL,
-			ylab=NULL
-		)
-		dev.off()
-		
-		message("File saved to '", getwd(), "/", pdf_map_output_filename,"'")
-	}
+	#png(file="animals45.png",width=1200,height=800,res=300)
+	pdf(
+		file=pdf_map_output_filename, 
+		width=11, 
+		height=8.5,
+		title=plot_title # This is the title within the title.
+	)
+	par(oma=c(0,0,0,0)) # From http://stackoverflow.com/a/13631358. '?par' states that oma is 'a vector of the form c(bottom, left, top, right) giving the size of the outer margins in lines of text.' We're here adding space for a title.
+	plot(graph)
+	title(
+		main=NULL, 
+		sub=plot_title,
+		xlab=NULL,
+		ylab=NULL
+	)
+	dev.off()
 	
+	message("File saved to '", getwd(), "/", pdf_map_output_filename,"'")
+}
+
+
+# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
+message("Press Y/y and then Return to save CSV output. Otherwise, just press Return.")
+
+#invisible(
+user_typed_response <- readLines("stdin", n=1)
+#)
+
+if(user_typed_response == 'Y' || user_typed_response == 'y'){
+	write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, eol="\n", quote=TRUE)
 	
-	# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-	message("Press Y/y and then Return to save CSV output. Otherwise, just press Return.")
-	
-	#invisible(
-	user_typed_response <- readLines("stdin", n=1)
-	#)
-	
-	if(user_typed_response == 'Y' || user_typed_response == 'y'){
-		write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, eol="\n", quote=TRUE)
-		
-		write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
-	}
-	
+	write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
+}
+
 	
