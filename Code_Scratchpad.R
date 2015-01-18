@@ -65,7 +65,6 @@ if(!any(is.na(file_yaml_metadata_fence_lines))){
 	
 }
 
-
 file1.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file1.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
 
 # Strip leading tabs off of each line:
@@ -138,6 +137,11 @@ file1.hard_wrapped_text <- as.character(lapply(file1.stripped_text,
 	}
 ))
 
+
+# Add the actual hard-wrapped text to the meta information object, so that we know which line we're talking about. This will also make the hard-wrapped text the primary key on which to join the meta information and edge list in programs like Visual Understanding Environment.
+file1.meta_information$hard_wrapped_text <- file1.hard_wrapped_text
+
+
 # Clear memory from possible past runs of this script:
 #rm(edge_list)
 #rm(binary_association_matrix)
@@ -154,9 +158,12 @@ edge_list <- data.frame(
 
 # Loop through the text and make an edge list from it:
 for(line_number in 1:length(file1.hard_wrapped_text)){
-	text_line <- file1.text[line_number]
+	text_line <- file1.hard_wrapped_text[line_number]
 	
+	#######################################
 	# If the line was indented, find the next-highest line that's one tab less-indented.
+	#######################################
+
 	number_of_leading_tabs_for_this_line <- as.data.frame(file1.meta_information)[line_number,"number_of_leading_tabs"]
 	
 	if(number_of_leading_tabs_for_this_line > 0){
@@ -166,22 +173,42 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 		if(length(possible_parent_line_numbers) != 0) {
 			likely_parent_line_number <- max(possible_parent_line_numbers)
 			edge_list <- rbind(edge_list, data.frame(
-				Source = file1.text[likely_parent_line_number],
+				Source = file1.hard_wrapped_text[likely_parent_line_number],
 				Relationship = "Parent",
 				Target = text_line
 			))
 		}
 	}
-}
+	
+	#######################################
+	# If line contains an explicit character combination link to the previous line, add that link to the edge list
+	#######################################
+	
+	if(file1.meta_information$contains_explicit_link_to_previous_line[line_number] == TRUE && line_number > 1){ # Line number > 1 is here to avoid errors associated with looking up the (non-existant) previous line '0'.
+		edge_list <- rbind(edge_list, data.frame(
+			Source = file1.hard_wrapped_text[(line_number-1)],
+			Relationship = "",
+			Target = text_line
+		))
+	}
+
+	
+
+
+
 	
 	
 	
+} # End of loop through text.
+	
+	
+
 View(edge_list)	
 	
 	
 	
 	
-	
+View(merge(edge_list, file1.meta_information, by.x="Source", by.y="hard_wrapped_text"))
 	
 	
 	
