@@ -58,32 +58,12 @@ if(!any(is.na(file_yaml_metadata_fence_lines))){
 	# Split each metadata string by the first instance of ": ". This approach comes from http://stackoverflow.com/a/26247455
 	yaml_metadata_for_file.parsed <- regmatches(yaml_metadata_for_file.unparsed, regexpr(": ", yaml_metadata_for_file.unparsed), invert = TRUE)
 	
+	# Start filling in the metadata table for each line of the parsed file.
 	for(metadata_line in yaml_metadata_for_file.parsed) {
-		file1.meta_information$metadata_line[[1]] <- metadata_line[[2]]
+		file1.meta_information[[metadata_line[[1]]]] <- rep(metadata_line[[2]], length(file1.text))
 	}
 	
 }
-
-tester <- list()
-tester[5] <- "Gp"
-
-# A DEMONSTRATION OF GETTING apply() TO WRITE VARIABLES OUTSIDE OF ITSELF, BY GOING OUTSIDE OF ITS NORMAL SCOPE:
-# This is per http://stackoverflow.com/a/2657002. Both it and http://stackoverflow.com/a/2657002 recommend using a for loop when variable writing is the goal.
-sapply(1:3, 
-			 function(number){
-			 	tester[number] <<- number
-			 	tester2 <<- 2
-			 })
-
-
-
-
-
-
-
-
-
-
 
 
 file1.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file1.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
@@ -93,7 +73,7 @@ file1.stripped_text <- sub("^\t*", "", file1.text)
 
 file1.meta_information$is_part_of_unordered_list <- grepl("^\\*", file1.stripped_text) # Note whether each line is part of an unordered list (starting with '*')
 
-file1.meta_information$is_part_of_ordered_list <-	grepl("^[0-9]\\.", file1.stripped_text) # Note whether each line is part of an ordered list (starting with, e.g. '1.')
+file1.meta_information$is_part_of_ordered_list <- grepl("^[0-9]\\.", file1.stripped_text) # Note whether each line is part of an ordered list (starting with, e.g. '1.')
 
 # Strip out leading * or [0.-9.] list markers:
 file1.stripped_text <- sub("^\\*\\s?", "", file1.stripped_text)
@@ -109,7 +89,10 @@ file1.meta_information$contains_nota_bene_note <-	grepl("-->.*<--", file1.stripp
 file1.meta_information$contains_note_to_self <-	grepl("\\{\\{.*\\}\\}", file1.stripped_text)
 file1.meta_information$contains_explicit_link_to_previous_line <-	grepl("L>", file1.stripped_text)
 
-View(file1.meta_information)
+#View(file1.meta_information)
+
+
+
 
 
 
@@ -120,15 +103,13 @@ View(file1.meta_information)
 ###################
 
 # Following http://stackoverflow.com/a/25487162, use igraph to get an adjacency matrix from our edge list:
-library(igraph)
+#library(igraph)
 
-adjacency_matrix <- as.matrix(
-	get.adjacency(
-		graph.edgelist(as.matrix(edge_list), directed=FALSE)
-	)
-)
-
-
+#adjacency_matrix <- as.matrix(
+#	get.adjacency(
+#		graph.edgelist(as.matrix(edge_list), directed=FALSE)
+#	)
+#)
 
 
 
@@ -136,28 +117,26 @@ adjacency_matrix <- as.matrix(
 
 # Bash should already have done this:
 # grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
-master_tag_list <- system(paste('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ', data_file_to_start, ' | sort | uniq'), intern=TRUE) # This could be refactored into R code (rather than bash calls) later.
+#master_tag_list <- system(paste('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ', data_file_to_start, ' | sort | uniq'), intern=TRUE) # This could be refactored into R code (rather than bash calls) later.
 
 #master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
 # Read the master tag list into a list:
 #master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
 
-node_text_dataframe <- as.data.frame(file1.text, stringsAsFactors = FALSE)
+#node_text_dataframe <- as.data.frame(file1.stripped_text, stringsAsFactors = FALSE)
 # View(node_text_dataframe)
 # str(node_text_dataframe)
 
 # THIS WORKS FOR ARBITRARILY RESHAPING TEXT INTO BLOCKS, WITH \n SEPARATORS. This follows http://jeromyanglim.tumblr.com/post/33554853812/how-to-automatically-break-a-caption-over-multiple
-node_text_dataframe[["hard_wrapped"]] <- as.character(lapply(node_text_dataframe[['file1.text']], 
-	 function(x){
-	 	paste(
-	 		strwrap(x, width=20, simplify=TRUE)
-	 		,
-	 		collapse = "\n"
-	 	)
-	 }
+file1.hard_wrapped_text <- as.character(lapply(file1.stripped_text, 
+																							 function(x){
+																							 	paste(
+																							 		strwrap(x, width=20, simplify=TRUE)
+																							 		,
+																							 		collapse = "\n"
+																							 	)
+																							 }
 ))
-# View(node_text_dataframe)
-# str(node_text_dataframe)
 
 # Clear memory from possible past runs of this script:
 #rm(edge_list)
@@ -165,19 +144,50 @@ node_text_dataframe[["hard_wrapped"]] <- as.character(lapply(node_text_dataframe
 
 edge_list <- data.frame(
 	Source=character(), # Just create an empt dataframe for now, following http://stackoverflow.com/a/10689206
+	Relationship=character(),
 	Target=character(), 
 	stringsAsFactors=FALSE
 )
 
-# Start a new dataframe. We'll fill it in below.
-binary_association_matrix <- data.frame(
-	Text=node_text_dataframe[["hard_wrapped"]]
-)
+
+
+
+max(which(file1.meta_information$number_of_leading_tabs[1:12] == 2))
+# I could use which.max() here, but it doesn't do a good job when there are no matches.
+#if(any(which(file1.meta_information$number_of_leading_tabs[1:12] == 5)))...
+# Loop through the text and make an edge list from it:
+for(line_number in 1:length(file1.text)){
+	text_line <- file1.text[line_number]
+	
+	# If the line was indented, find the next-highest line that's one tab less-indented.
+	number_of_leading_tabs_for_this_line <- as.data.frame(file1.meta_information)[line_number,"number_of_leading_tabs"]
+	
+	if(number_of_leading_tabs_for_this_line > 0){
+		likely_parent_line_number <- which(file1.meta_information$number_of_leading_tabs[1:line_number] == (number_of_leading_tabs_for_this_line - 1))
+		# Add to edge list (Source, Relationship, Target)
+		edge_list <- rbind(edge_list, as.data.frame(c(file1.text[likely_parent_line_number], "Parent", text_line)))
+	}
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Create a logical vector for each line of the original file, vs. each tag from the master list. Ultimately, this will give us a filled-out dataframe showing which tags each line of original text has.
 for(j in 1:length(master_tag_list)){
 	tag <- master_tag_list[j]
-
+	
 	for(i in 1:length(node_text_dataframe[["hard_wrapped"]])){
 		text <- node_text_dataframe[["hard_wrapped"]][i]
 		
@@ -186,7 +196,7 @@ for(j in 1:length(master_tag_list)){
 			edge_list <- rbind(edge_list, row_to_append)
 		}
 	}
-
+	
 	binary_association_matrix[[tag]] <- grepl(tag, node_text_dataframe[["hard_wrapped"]])*1 # Following http://r.789695.n4.nabble.com/Changing-a-logical-matrix-into-a-numeric-matrix-td3206797.html, multiplying by 1 here turns a logical vector (e.g., 'TRUE', 'TRUE', 'FALSE', etc.) into a numerical one (e.g., 1, 1, 0, etc.)
 }
 
@@ -242,9 +252,9 @@ title("Unweighted and directed graphs", line = 2.5)
 X11(
 	width=11,
 	height=8.5
-	)
+)
 graph <- qgraph(
- 	edge_list,
+	edge_list,
 	esize=5,
 	gray=TRUE,
 	label.scale=TRUE,
@@ -255,7 +265,7 @@ graph <- qgraph(
 	shape="circle",
 	border.width=.5,
 	labels=TRUE
- )
+)
 
 # For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
 #library('playwith')
@@ -307,5 +317,4 @@ if(user_typed_response == 'Y' || user_typed_response == 'y'){
 	
 	write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
 }
-
 
