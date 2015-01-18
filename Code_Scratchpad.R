@@ -153,23 +153,15 @@ file1.hard_wrapped_text <- as.character(lapply(file1.stripped_text,
 
 
 # Add the actual hard-wrapped text to the meta information object, so that we know which line we're talking about. This will also make the hard-wrapped text the primary key on which to join the meta information and edge list in programs like Visual Understanding Environment.
-# NOTE WELL that file1.meta_information should be ordered such that the 'hard_wrapped_text' column comes first. This will make programs like Visual Understanding Environment parse it better.
-file1.meta_information <- data.frame(
-	hard_wrapped_text = file1.hard_wrapped_text, 
-	file1.meta_information
-)
+# NOTE WELL that file1.meta_information should be ordered such that the 'hard_wrapped_text' column DOES NOT first. This will make programs like Visual Understanding Environment parse it better.
+file1.meta_information$hard_wrapped_text <- file1.hard_wrapped_text
 
+# If we DID want this column to come first in the dataframe, we could use this:
+#file1.meta_information <- data.frame(
+#	hard_wrapped_text = file1.hard_wrapped_text, 
+#	file1.meta_information
+#)
 
-#file1.meta_information <- file1.meta_information[c("hard_wrapped_text", "id", "weight")]
-column_number_of_hard_wrapped_text
-file1.meta_information[
-	c(
-		which(names(file1.meta_information) == "hard_wrapped_text"),
-		which(
-			1:length(file1.meta_information) != 
-			which(names(file1.meta_information) == "hard_wrapped_text"))
-	)
-]
 
 
 # Clear memory from possible past runs of this script:
@@ -273,6 +265,31 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 edge_list_merged_with_metadata <- merge(edge_list, file1.meta_information, by.x="Source", by.y="hard_wrapped_text")
 View(edge_list_merged_with_metadata)	
 
+# Because programs like Visual Understanding Environment don't seem to be able to import matrix-data (like our edge list) AND join those to other datasets consistently, we'll add an edge for each of the YAML metadata pieces, as well as filename:
+#as.data.frame(yaml_metadata_for_file.parsed)[1,][1]
+#file_name
+for(metadata_line in yaml_metadata_for_file.parsed) {
+	yaml_title <- metadata_line[[1]]
+	edge_list <- rbind(
+		edge_list,
+		data.frame(
+			Source = file1.meta_information$hard_wrapped_text,
+			Relationship = yaml_title,
+			Target = file1.meta_information[[yaml_title]]
+		)
+	)
+}
+
+edge_list <- rbind(
+	edge_list,
+	data.frame(
+		Source = file1.meta_information$hard_wrapped_text,
+		Relationship = "File",
+		Target = file1.meta_information$file_name
+	)
+)
+
+View(edge_list)
 
 
 write.csv(edge_list_merged_with_metadata, file="Edge_List.csv", row.names=FALSE, na="")
