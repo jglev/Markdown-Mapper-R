@@ -26,11 +26,11 @@ edge_list <- data.frame(
 ####################################
 
 # For testing
-args <- c("./todo.txt", "done.txt")
+#args <- c("./todo.txt", "done.txt")
 
 for(data_file_to_start in args){
-	paste("Processing file '", data_file_to_start, "'...")
-
+	print(paste("Processing file '", data_file_to_start, "'..."))
+	
 	#data_file_to_start <- 
 		#args[1]
 	#	"./todo.txt"
@@ -51,6 +51,11 @@ for(data_file_to_start in args){
 	#Author: Test
 	#Year: 2015
 	#---
+	
+	# Remove YAML-metadata-related variables from previous loops, and then go forward.
+	file_yaml_metadata_fence_lines <- NULL
+	yaml_metadata_for_file.unparsed <- NULL
+	yaml_metadata_for_file.parsed <- NULL
 	
 	file_yaml_metadata_fence_lines <- grep('^---', file.text, perl=TRUE)[1:2]
 	
@@ -154,6 +159,8 @@ for(data_file_to_start in args){
 	
 	# Loop through the text and make an edge list from it:
 	for(line_number in 1:length(file.hard_wrapped_text)){
+		print(paste("Processing line number", line_number, "..."))
+		
 		text_line <- file.hard_wrapped_text[line_number]
 		
 		#######################################
@@ -246,14 +253,16 @@ for(data_file_to_start in args){
 	#as.data.frame(yaml_metadata_for_file.parsed)[1,][1]
 	#file_name
 	if(length(yaml_metadata_for_file.parsed) > 0){
+		print(paste("The parsed YAML Metadata for the file is as follows:", yaml_metadata_for_file.parsed))
+		
 		for(metadata_line in yaml_metadata_for_file.parsed) {
 			yaml_title <- metadata_line[[1]]
 			edge_list <- rbind(
 				edge_list,
 				data.frame(
-					Source = 1, #file.meta_information$hard_wrapped_text,
+					Source = file.meta_information$hard_wrapped_text,
 					Relationship = yaml_title,
-					Target = 3 #file.meta_information[[yaml_title]]
+					Target = file.meta_information[[yaml_title]]
 				)
 			)
 		}
