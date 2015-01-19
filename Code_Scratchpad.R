@@ -29,10 +29,10 @@ data_file_to_start <-
 	#args[1]
 	"./todo.txt"
 # Following http://stackoverflow.com/a/6603126, read in the file as a list:
-file1.text <- scan(data_file_to_start, what="list", sep="\n", blank.lines.skip=TRUE) # Note that blank.lines.skip=TRUE will skip all blank lines in the file.
+file.text <- scan(data_file_to_start, what="list", sep="\n", blank.lines.skip=TRUE) # Note that blank.lines.skip=TRUE will skip all blank lines in the file.
 
 # Create a blank list to fill in:
-file1.meta_information <- list()
+file.meta_information <- list()
 
 # THE ABOVE SYSTEM CALL IS NOW PORTED INTO STRAIGHT R:
 # See http://www.regular-expressions.info/rlanguage.html
@@ -46,39 +46,39 @@ file1.meta_information <- list()
 #Year: 2015
 #---
 
-file_yaml_metadata_fence_lines <- grep('^---', file1.text, perl=TRUE)[1:2]
+file_yaml_metadata_fence_lines <- grep('^---', file.text, perl=TRUE)[1:2]
 
 # If we've found two '---' strings, we'll assume that they're metadata fences. In that case, we'll parse the metadata and add it to the metadata object. Otherwise, we'll skip this part.
 if(!any(is.na(file_yaml_metadata_fence_lines))){
-	yaml_metadata_for_file.unparsed <- file1.text[(file_yaml_metadata_fence_lines[1]+1):(file_yaml_metadata_fence_lines[2]-1)]
+	yaml_metadata_for_file.unparsed <- file.text[(file_yaml_metadata_fence_lines[1]+1):(file_yaml_metadata_fence_lines[2]-1)]
 	
 	# Remove those lines from the originally-read lines from the file:
-	file1.text <- file1.text[-((file_yaml_metadata_fence_lines[1]):(file_yaml_metadata_fence_lines[2]))]
+	file.text <- file.text[-((file_yaml_metadata_fence_lines[1]):(file_yaml_metadata_fence_lines[2]))]
 	
 	# Split each metadata string by the first instance of ": ". This approach comes from http://stackoverflow.com/a/26247455
 	yaml_metadata_for_file.parsed <- regmatches(yaml_metadata_for_file.unparsed, regexpr(": ", yaml_metadata_for_file.unparsed), invert = TRUE)
 	
 	# Start filling in the metadata table for each line of the parsed file.
 	for(metadata_line in yaml_metadata_for_file.parsed) {
-		file1.meta_information[[metadata_line[[1]]]] <- rep(metadata_line[[2]], length(file1.text))
+		file.meta_information[[metadata_line[[1]]]] <- rep(metadata_line[[2]], length(file.text))
 	}
 } # End of YAML loop
 
 # Further fill in the metadata table:
-file1.meta_information$file_name <- data_file_to_start
+file.meta_information$file_name <- data_file_to_start
 
-file1.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file1.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
+file.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
 
 # Strip leading tabs off of each line:
-file1.stripped_text <- sub("^\t*", "", file1.text)
+file.stripped_text <- sub("^\t*", "", file.text)
 
-file1.meta_information$is_part_of_unordered_list <- grepl("^\\*", file1.stripped_text) # Note whether each line is part of an unordered list (starting with '*')
+file.meta_information$is_part_of_unordered_list <- grepl("^\\*", file.stripped_text) # Note whether each line is part of an unordered list (starting with '*')
 
-file1.meta_information$is_part_of_ordered_list <- grepl("^[0-9]\\.", file1.stripped_text) # Note whether each line is part of an ordered list (starting with, e.g. '1.')
+file.meta_information$is_part_of_ordered_list <- grepl("^[0-9]\\.", file.stripped_text) # Note whether each line is part of an ordered list (starting with, e.g. '1.')
 
 # Strip out leading * or [0.-9.] list markers:
-file1.stripped_text <- sub("^\\*\\s?", "", file1.stripped_text)
-file1.stripped_text <- sub("^[0-9]\\.\\s", "", file1.stripped_text)
+file.stripped_text <- sub("^\\*\\s?", "", file.stripped_text)
+file.stripped_text <- sub("^[0-9]\\.\\s", "", file.stripped_text)
 
 
 # Check for the presence of several special character combinations:
@@ -86,17 +86,17 @@ file1.stripped_text <- sub("^[0-9]\\.\\s", "", file1.stripped_text)
 # {{ blah blah }} Note to self / Original Idea
 # L> Explicit link to previous line.
 
-file1.meta_information$contains_nota_bene_note <-	grepl("-->.*<--", file1.stripped_text)
-file1.meta_information$contains_note_to_self <-	grepl("\\{\\{.*\\}\\}", file1.stripped_text)
-file1.meta_information$contains_explicit_link_to_previous_line <-	grepl("L>", file1.stripped_text)
+file.meta_information$contains_nota_bene_note <-	grepl("-->.*<--", file.stripped_text)
+file.meta_information$contains_note_to_self <-	grepl("\\{\\{.*\\}\\}", file.stripped_text)
+file.meta_information$contains_explicit_link_to_previous_line <-	grepl("L>", file.stripped_text)
 
-#View(file1.meta_information)
+#View(file.meta_information)
 
 
 # Perform the grep, returning all values (one vector per row):
 tag_list_by_row <- regmatches(
-	file1.text, 
-	gregexpr('\\+\\w*',file1.text)
+	file.text, 
+	gregexpr('\\+\\w*',file.text)
 )
 
 # Collapse the rows into a single vector:
@@ -114,12 +114,12 @@ master_tag_list <- unique(master_tag_list)
 # Read the master tag list into a list:
 #master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
 
-node_text_dataframe <- as.data.frame(file1.text, stringsAsFactors = FALSE)
+node_text_dataframe <- as.data.frame(file.text, stringsAsFactors = FALSE)
 # View(node_text_dataframe)
 # str(node_text_dataframe)
 
 # THIS WORKS FOR ARBITRARILY RESHAPING TEXT INTO BLOCKS, WITH \n SEPARATORS. This follows http://jeromyanglim.tumblr.com/post/33554853812/how-to-automatically-break-a-caption-over-multiple
-file1.hard_wrapped_text <- as.character(lapply(file1.stripped_text, 
+file.hard_wrapped_text <- as.character(lapply(file.stripped_text, 
 	function(x){
 		paste(
 			strwrap(x, width=20, simplify=TRUE)
@@ -131,13 +131,13 @@ file1.hard_wrapped_text <- as.character(lapply(file1.stripped_text,
 
 
 # Add the actual hard-wrapped text to the meta information object, so that we know which line we're talking about. This will also make the hard-wrapped text the primary key on which to join the meta information and edge list in programs like Visual Understanding Environment.
-# NOTE WELL that file1.meta_information should be ordered such that the 'hard_wrapped_text' column DOES NOT first. This will make programs like Visual Understanding Environment parse it better.
-file1.meta_information$hard_wrapped_text <- file1.hard_wrapped_text
+# NOTE WELL that file.meta_information should be ordered such that the 'hard_wrapped_text' column DOES NOT first. This will make programs like Visual Understanding Environment parse it better.
+file.meta_information$hard_wrapped_text <- file.hard_wrapped_text
 
 # If we DID want this column to come first in the dataframe, we could use this:
-#file1.meta_information <- data.frame(
-#	hard_wrapped_text = file1.hard_wrapped_text, 
-#	file1.meta_information
+#file.meta_information <- data.frame(
+#	hard_wrapped_text = file.hard_wrapped_text, 
+#	file.meta_information
 #)
 
 
@@ -154,23 +154,23 @@ edge_list <- data.frame(
 
 
 # Loop through the text and make an edge list from it:
-for(line_number in 1:length(file1.hard_wrapped_text)){
-	text_line <- file1.hard_wrapped_text[line_number]
+for(line_number in 1:length(file.hard_wrapped_text)){
+	text_line <- file.hard_wrapped_text[line_number]
 	
 	#######################################
 	# If the line was indented, find the next-highest line that's one tab less-indented.
 	#######################################
 
-	number_of_leading_tabs_for_this_line <- as.data.frame(file1.meta_information)[line_number,"number_of_leading_tabs"]
+	number_of_leading_tabs_for_this_line <- as.data.frame(file.meta_information)[line_number,"number_of_leading_tabs"]
 	
 	if(number_of_leading_tabs_for_this_line > 0){
-		possible_parent_line_numbers <- which(file1.meta_information$number_of_leading_tabs[1:line_number] == (number_of_leading_tabs_for_this_line - 1)) # I could use which.max() here, but it doesn't do a good job when there are no matches.
+		possible_parent_line_numbers <- which(file.meta_information$number_of_leading_tabs[1:line_number] == (number_of_leading_tabs_for_this_line - 1)) # I could use which.max() here, but it doesn't do a good job when there are no matches.
 		
 		# If the search above for other line numbers yielded a match (i.e., likely_parent_line_number is not "integer(0)" (which is how R shows no match here)), add it to the edge list (in the format Source, Relationship, Target):
 		if(length(possible_parent_line_numbers) != 0) {
 			likely_parent_line_number <- max(possible_parent_line_numbers)
 			edge_list <- rbind(edge_list, data.frame(
-				Source = file1.hard_wrapped_text[likely_parent_line_number],
+				Source = file.hard_wrapped_text[likely_parent_line_number],
 				Relationship = "Parent",
 				Target = text_line
 			))
@@ -181,9 +181,9 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 	# If line contains an explicit character combination link to the previous line, add that link to the edge list
 	#######################################
 	
-	if(file1.meta_information$contains_explicit_link_to_previous_line[line_number] == TRUE && line_number > 1){ # Line number > 1 is here to avoid errors associated with looking up the (non-existant) previous line '0'.
+	if(file.meta_information$contains_explicit_link_to_previous_line[line_number] == TRUE && line_number > 1){ # Line number > 1 is here to avoid errors associated with looking up the (non-existant) previous line '0'.
 		edge_list <- rbind(edge_list, data.frame(
-			Source = file1.hard_wrapped_text[(line_number-1)],
+			Source = file.hard_wrapped_text[(line_number-1)],
 			Relationship = "",
 			Target = text_line
 		))
@@ -194,10 +194,10 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 	# If line is part of an ordered list (1., 2., 3., etc.), if the next line up with the same indentation is also part of an ordered list, make an edge between them.
 	#######################################
 	
-	if(file1.meta_information$is_part_of_ordered_list[line_number] == TRUE && line_number > 1){
+	if(file.meta_information$is_part_of_ordered_list[line_number] == TRUE && line_number > 1){
 			possible_higher_list_item_line_numbers <- which(
-				file1.meta_information$number_of_leading_tabs[1:(line_number-1)] == number_of_leading_tabs_for_this_line
-				& file1.meta_information$is_part_of_ordered_list[1:(line_number-1)] == TRUE
+				file.meta_information$number_of_leading_tabs[1:(line_number-1)] == number_of_leading_tabs_for_this_line
+				& file.meta_information$is_part_of_ordered_list[1:(line_number-1)] == TRUE
 			) # I could use which.max() here, but it doesn't do a good job when there are no matches. Also, '&' is used here because it is vectorized, whereas '&&' is not, per http://stackoverflow.com/a/15141015
 			
 			# If the search above for other line numbers yielded a match (i.e., likely_parent_line_number is not "integer(0)" (which is how R shows no match here)), add it to the edge list (in the format Source, Relationship, Target):
@@ -206,13 +206,13 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 				
 				# Check if there are non-ordered-list items in between this possible parent line and the current text_line at the same indentation level. If there are, then these two lines are probably not part of the same list. If there aren't, then we'll make an edge between the two lines:
 				are_there_intervening_lines_that_arent_part_of_list <- (length(which(
-					file1.meta_information$number_of_leading_tabs[likely_parent_list_item_line_number:line_number] == number_of_leading_tabs_for_this_line
-					& file1.meta_information$is_part_of_ordered_list[likely_parent_list_item_line_number:line_number] == FALSE
+					file.meta_information$number_of_leading_tabs[likely_parent_list_item_line_number:line_number] == number_of_leading_tabs_for_this_line
+					& file.meta_information$is_part_of_ordered_list[likely_parent_list_item_line_number:line_number] == FALSE
 				)) != 0)
 				
 				if(are_there_intervening_lines_that_arent_part_of_list == FALSE){
 					edge_list <- rbind(edge_list, data.frame(
-						Source = file1.hard_wrapped_text[likely_parent_list_item_line_number],
+						Source = file.hard_wrapped_text[likely_parent_list_item_line_number],
 						Relationship = "List Item",
 						Target = text_line
 					))
@@ -230,7 +230,7 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 	if(length(tag_list_by_row[line_number][[1]]) > 0){ # [[1]] here is because each row of tag_list_by_row is itself a list.
 		for(tag in tag_list_by_row[line_number][[1]]){
 			edge_list <- rbind(edge_list, data.frame(
-				Source = file1.hard_wrapped_text[line_number],
+				Source = file.hard_wrapped_text[line_number],
 				Relationship = "Tag",
 				Target = tag
 			))
@@ -240,7 +240,7 @@ for(line_number in 1:length(file1.hard_wrapped_text)){
 } # End of loop through text.
 	
 
-edge_list_merged_with_metadata <- merge(edge_list, file1.meta_information, by.x="Source", by.y="hard_wrapped_text")
+edge_list_merged_with_metadata <- merge(edge_list, file.meta_information, by.x="Source", by.y="hard_wrapped_text")
 View(edge_list_merged_with_metadata)	
 
 # Because programs like Visual Understanding Environment don't seem to be able to import matrix-data (like our edge list) AND join those to other datasets consistently, we'll add an edge for each of the YAML metadata pieces, as well as filename:
@@ -251,9 +251,9 @@ for(metadata_line in yaml_metadata_for_file.parsed) {
 	edge_list <- rbind(
 		edge_list,
 		data.frame(
-			Source = file1.meta_information$hard_wrapped_text,
+			Source = file.meta_information$hard_wrapped_text,
 			Relationship = yaml_title,
-			Target = file1.meta_information[[yaml_title]]
+			Target = file.meta_information[[yaml_title]]
 		)
 	)
 }
@@ -261,9 +261,9 @@ for(metadata_line in yaml_metadata_for_file.parsed) {
 edge_list <- rbind(
 	edge_list,
 	data.frame(
-		Source = file1.meta_information$hard_wrapped_text,
+		Source = file.meta_information$hard_wrapped_text,
 		Relationship = "File",
-		Target = file1.meta_information$file_name
+		Target = file.meta_information$file_name
 	)
 )
 
@@ -271,7 +271,7 @@ View(edge_list)
 
 
 write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, na="")
-write.csv(file1.meta_information, file="Meta_Information.csv", row.names=FALSE, na="")
+write.csv(file.meta_information, file="Meta_Information.csv", row.names=FALSE, na="")
 
 
 
