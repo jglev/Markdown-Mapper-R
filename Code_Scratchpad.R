@@ -245,16 +245,18 @@ for(data_file_to_start in args){
 	# Because programs like Visual Understanding Environment don't seem to be able to import matrix-data (like our edge list) AND join those to other datasets consistently, we'll add an edge for each of the YAML metadata pieces, as well as filename:
 	#as.data.frame(yaml_metadata_for_file.parsed)[1,][1]
 	#file_name
-	for(metadata_line in yaml_metadata_for_file.parsed) {
-		yaml_title <- metadata_line[[1]]
-		edge_list <- rbind(
-			edge_list,
-			data.frame(
-				Source = file.meta_information$hard_wrapped_text,
-				Relationship = yaml_title,
-				Target = file.meta_information[[yaml_title]]
+	if(length(yaml_metadata_for_file.parsed) > 0){
+		for(metadata_line in yaml_metadata_for_file.parsed) {
+			yaml_title <- metadata_line[[1]]
+			edge_list <- rbind(
+				edge_list,
+				data.frame(
+					Source = 1, #file.meta_information$hard_wrapped_text,
+					Relationship = yaml_title,
+					Target = 3 #file.meta_information[[yaml_title]]
+				)
 			)
-		)
+		}
 	}
 	
 	edge_list <- rbind(
@@ -265,6 +267,7 @@ for(data_file_to_start in args){
 			Target = file.meta_information$file_name
 		)
 	)
+
 } # End of 'for(data_file_to_start in args)' loop.
 
 #View(edge_list)
@@ -332,7 +335,7 @@ graph <- qgraph(
 	border.width=.5,
 	labels=TRUE
 )
-dev.off()
+#dev.off()
 	
 	# For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
 	#library('playwith')
