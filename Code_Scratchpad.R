@@ -106,26 +106,6 @@ master_tag_list <- unlist(tag_list_by_row)
 master_tag_list <- unique(master_tag_list)
 
 
-
-
-###################
-# FURTHER PLANNING
-# * JUST CREATE AN EDGE LIST, AND THEN CONVERT IT FROM "LONG"/"TALL" FORM TO "WIDE" FORM (I.E., AN ADJACENCY MATRIX) IN ONE STEP:
-###################
-
-# Following http://stackoverflow.com/a/25487162, use igraph to get an adjacency matrix from our edge list:
-#library(igraph)
-
-#adjacency_matrix <- as.matrix(
-#	get.adjacency(
-#		graph.edgelist(as.matrix(edge_list), directed=FALSE)
-#	)
-#)
-
-
-
-
-
 # Bash should already have done this:
 # grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
 #master_tag_list <- system(paste('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ', data_file_to_start, ' | sort | uniq'), intern=TRUE) # This could be refactored into R code (rather than bash calls) later.
@@ -393,7 +373,7 @@ if(user_typed_response == 'Y' || user_typed_response == 'y'){
 
 
 # To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-message("Press Y/y and then Return to save CSV output. Otherwise, just press Return.")
+message("Press Y/y and then Return to save Edge List CSV output. Otherwise, just press Return.")
 
 #invisible(
 user_typed_response <- readLines("stdin", n=1)
@@ -401,8 +381,32 @@ user_typed_response <- readLines("stdin", n=1)
 
 if(user_typed_response == 'Y' || user_typed_response == 'y'){
 	write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, eol="\n", quote=TRUE)
-	
-	write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
 }
 
+
+message("Press Y/y and then Return to save Adjacency Matrix CSV output. Otherwise, just press Return.")
+
+#invisible(
+user_typed_response <- readLines("stdin", n=1)
+#)
+
+if(user_typed_response == 'Y' || user_typed_response == 'y'){
 	
+	###################
+	# We've already created an edge list, and can at this point convert it to an adjacency matrix (i.e., going from "long"/"tall" format to "wide" format) in one step.
+	###################
+	
+	# Following http://stackoverflow.com/a/25487162, use igraph to get an adjacency matrix from our edge list:
+	library(igraph)
+	
+	adjacency_matrix <- as.matrix(
+		get.adjacency(
+			graph.edgelist(
+				as.matrix(edge_list[c("Source", "Target")]),
+				directed=FALSE)
+		)
+	)
+	write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
+	
+}
+
