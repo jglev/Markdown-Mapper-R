@@ -7,6 +7,25 @@
 # (If you would like to redistribute the code under other license terms, please contact the author)
 ##############################
 
+
+# NOTE WELL: Although this script gives limitd information on the tags ('+tag') used in files passed to it, I recommend this bash function for getting tag counts:
+
+# function search-file-for-tags() { # This lets you search a file to see all unique tags (starting, e.g., with '@' or '+') in a given file.
+# 	# grep -Po "$1\w*" $2 | sort | uniq -c | sort -r # $1 here is the tag leader (e.g., \+ or \@); $2 is the filename.
+# 	grep --perl-regexp --only-matching --no-filename "$1\w*" $2 | sort | uniq --count | sort --numeric-sort --reverse --field-separator=" " --key=1 # This will correctly count and sort (by count) across multiple files in a directory, not printing filenames.
+# }
+
+# You can then call this function with, e.g.,
+# search-file-for-tags "\+" "/path/to/file"
+# or
+# cat file1 file2 | search-file-for-tags "\+"
+
+
+
+
+
+
+
 #setwd("~/Desktop/Note-Taking_Network_Grapher/")
 paste("Working from directory '", getwd(), "'...") # This will get the directory from which RScript is being called.
 
@@ -114,12 +133,10 @@ for(data_file_to_start in args){
 	)
 	
 	# Collapse the rows into a single vector, building up over loops through files:
-	print(str(master_tag_list))
-	print(str(unlist(tag_list_by_row)))
-	master_tag_list_for_this_file <- rbind(master_tag_list, unlist(tag_list_by_row))
+	master_tag_list_for_this_file <- c(master_tag_list, unlist(tag_list_by_row))
 	
 	# Get unique values from the single vector:
-	master_tag_list <- unique(rbind(master_tag_list, master_tag_list_for_this_file))
+	master_tag_list <- unique(c(master_tag_list, master_tag_list_for_this_file))
 	
 	
 	# Bash should already have done this:
@@ -321,11 +338,8 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 	# TO USE AN EDGE LIST WITH VUE: Have three columns: one for source, one for target, and one for relationship (this column can be blank, but should be there). Then, in VUE, go to Windows -> Datasets, and click "+" to import a dataset. **Set "Import as Matrix Data" to TRUE.** Then say that the dataset is "Tall" ("Wide" would be for an adjacency matrix, or correlation matrix, etc.). Select the source, target, and relationship columns. Then you're good to go!!!
 	########################
 	
-	print(321)
-message(
-	paste("The master list of all tags ('+tag') used in the given files is as follows:",
-	cat(master_tag_list, sep="\n")
-))
+message("The master list of all tags ('+tag') used in the given files is as follows:")
+cat(sort(master_tag_list), sep="\n")
 
 message("Generating quick-view network graph...")
 
