@@ -28,6 +28,9 @@ edge_list <- data.frame(
 # For testing
 #args <- c("./todo.txt", "done.txt")
 
+# Create a blank object for the master list of all tags used across files. We'll fill this in below.
+master_tag_list <- NULL
+
 for(data_file_to_start in args){
 	print(paste("Processing file '", data_file_to_start, "'..."))
 	
@@ -110,11 +113,13 @@ for(data_file_to_start in args){
 		gregexpr('\\+\\w*',file.text)
 	)
 	
-	# Collapse the rows into a single vector:
-	master_tag_list <- unlist(tag_list_by_row)
+	# Collapse the rows into a single vector, building up over loops through files:
+	print(str(master_tag_list))
+	print(str(unlist(tag_list_by_row)))
+	master_tag_list_for_this_file <- rbind(master_tag_list, unlist(tag_list_by_row))
 	
 	# Get unique values from the single vector:
-	master_tag_list <- unique(master_tag_list)
+	master_tag_list <- unique(rbind(master_tag_list, master_tag_list_for_this_file))
 	
 	
 	# Bash should already have done this:
@@ -316,8 +321,11 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 	# TO USE AN EDGE LIST WITH VUE: Have three columns: one for source, one for target, and one for relationship (this column can be blank, but should be there). Then, in VUE, go to Windows -> Datasets, and click "+" to import a dataset. **Set "Import as Matrix Data" to TRUE.** Then say that the dataset is "Tall" ("Wide" would be for an adjacency matrix, or correlation matrix, etc.). Select the source, target, and relationship columns. Then you're good to go!!!
 	########################
 	
-	
-
+	print(321)
+message(
+	paste("The master list of all tags ('+tag') used in the given files is as follows:",
+	cat(master_tag_list, sep="\n")
+))
 
 message("Generating quick-view network graph...")
 
