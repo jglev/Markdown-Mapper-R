@@ -159,7 +159,7 @@ for(data_file_to_start in args){
 	
 	# Loop through the text and make an edge list from it:
 	for(line_number in 1:length(file.hard_wrapped_text)){
-		print(paste("Processing line number", line_number, "..."))
+		# print(paste("Processing line number", line_number, "...")) # Good for debugging.
 		
 		text_line <- file.hard_wrapped_text[line_number]
 		
@@ -253,7 +253,7 @@ for(data_file_to_start in args){
 	#as.data.frame(yaml_metadata_for_file.parsed)[1,][1]
 	#file_name
 	if(length(yaml_metadata_for_file.parsed) > 0){
-		print(paste("The parsed YAML Metadata for the file is as follows:", yaml_metadata_for_file.parsed))
+		# print(paste("The parsed YAML Metadata for the file is as follows:", yaml_metadata_for_file.parsed)) # Good for debugging.
 		
 		for(metadata_line in yaml_metadata_for_file.parsed) {
 			yaml_title <- metadata_line[[1]]
@@ -313,18 +313,13 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 	########################
 	# UPDATE: VUE IS GOOD WITH EDGE LISTS (and adjacency matrices, although for adjacency matrices, it prints all 0- or NA-relationship links (so you have to search for '0' and delete them). 
 	#
-	# TO USE AN EDGE LIST WITH VIEW: Have three columns: one for source, one for target, and one for relationship (this column can be blank, but should be there). Then, in VUE, go to Windows -> Datasets, and click "+" to import a dataset. **Set "Import as Matrix Data" to TRUE.** Then say that the dataset is "Tall" ("Wide" would be for an adjacency matrix, or correlation matrix, etc.). Select the source, target, and relationship columns. Then you're good to go!!!
+	# TO USE AN EDGE LIST WITH VUE: Have three columns: one for source, one for target, and one for relationship (this column can be blank, but should be there). Then, in VUE, go to Windows -> Datasets, and click "+" to import a dataset. **Set "Import as Matrix Data" to TRUE.** Then say that the dataset is "Tall" ("Wide" would be for an adjacency matrix, or correlation matrix, etc.). Select the source, target, and relationship columns. Then you're good to go!!!
 	########################
 	
 	
-	
-	
-	
-	
-	
 
 
-
+message("Generating quick-view network graph...")
 
 # To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
 X11(
@@ -392,7 +387,17 @@ user_typed_response <- readLines("stdin", n=1)
 #)
 
 if(user_typed_response == 'Y' || user_typed_response == 'y'){
-	write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, eol="\n", quote=TRUE)
+	edge_list_filename <- "Edge_List.csv"
+	write.csv(edge_list, file=edge_list_filename, row.names=FALSE, eol="\n", quote=TRUE)
+	message("File saved to '", getwd(), "/", edge_list_filename,"'")
+	
+	message("
+If you would like to use this edge list in Visual Understanding Environment (VUE), do the following: 
+1. In VUE, go to Windows -> Datasets, and click '+' to import a dataset. 
+2. **Set 'Import as Matrix Data' to TRUE.** 
+3. Select that the dataset is 'Tall' ('Wide' would be for an adjacency matrix, or correlation matrix, etc.).
+4. Select the source, target, and relationship columns. Then you're good to go!
+	")
 }
 
 
@@ -418,7 +423,9 @@ if(user_typed_response == 'Y' || user_typed_response == 'y'){
 				directed=FALSE)
 		)
 	)
-	write.csv(binary_association_matrix, file="Binary_Association_Matrix.csv", row.names=FALSE, eol="\n", quote=TRUE)
-	
+	adjacency_matrix_filename <- "Adjacency_Matrix.csv"	
+	write.csv(adjacency_matrix, file=adjacency_matrix_filename, row.names=FALSE, eol="\n", quote=TRUE)
+	message("File saved to '", getwd(), "/", adjacency_matrix_filename,"'")
+
 }
 
