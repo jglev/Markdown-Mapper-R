@@ -133,11 +133,10 @@ for(data_file_to_start in args){
 	)
 	
 	# Collapse the rows into a single vector, building up over loops through files:
-	master_tag_list_for_this_file <- c(master_tag_list, unlist(tag_list_by_row))
+	master_tag_list_for_this_file <- c(unlist(tag_list_by_row))
 	
 	# Get unique values from the single vector:
-	master_tag_list <- unique(c(master_tag_list, master_tag_list_for_this_file))
-	
+	master_tag_list <- c(master_tag_list, master_tag_list_for_this_file)
 	
 	# Bash should already have done this:
 	# grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
@@ -339,7 +338,7 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 	########################
 	
 message("The master list of all tags ('+tag') used in the given files is as follows:")
-cat(sort(master_tag_list), sep="\n")
+print(sort(table(master_tag_list)))
 
 message("Generating quick-view network graph...")
 
