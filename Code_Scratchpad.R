@@ -338,7 +338,7 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 	########################
 	
 message("The master list of all tags ('+tag') used in the given files is as follows:")
-print(sort(table(master_tag_list)))
+print(as.matrix(sort(table(master_tag_list), decreasing = TRUE)))
 
 message("Generating quick-view network graph...")
 
