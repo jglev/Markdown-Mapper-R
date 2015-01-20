@@ -303,8 +303,8 @@ for(data_file_to_start in args){
 #View(edge_list)
 
 
-write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, na="")
-write.csv(file.meta_information, file="Meta_Information.csv", row.names=FALSE, na="")
+#write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, na="")
+#write.csv(file.meta_information, file="Meta_Information.csv", row.names=FALSE, na="")
 
 
 
