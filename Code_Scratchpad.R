@@ -502,7 +502,7 @@ if(user_typed_response == 'Y' || user_typed_response == 'y'){
 		)
 	)
 	adjacency_matrix_filename <- "Adjacency_Matrix.csv"	
-	write.csv(adjacency_matrix, file=adjacency_matrix_filename, row.names=FALSE, eol="\n", quote=TRUE)
+	write.csv(adjacency_matrix, file=adjacency_matrix_filename, row.names=TRUE, eol="\n", quote=TRUE)
 	message("File saved to '", getwd(), "/", adjacency_matrix_filename,"'")
 
 }
