@@ -215,6 +215,32 @@ for(data_file_to_start in args){
 				Target = text_line
 			))
 		}
+    
+    
+		#######################################
+		# If line contains a "nota-bene" character combination, add that to the edge list
+		#######################################
+		
+		if(file.meta_information$contains_nota_bene_note[line_number] == TRUE){
+		  edge_list <- rbind(edge_list, data.frame(
+		    Source = file.hard_wrapped_text[(line_number)],
+		    Relationship = "Contains Type",
+		    Target = "Nota Bene"
+		  ))
+		}
+    
+    
+		#######################################
+		# If line contains an "original thought" character combination, add that to the edge list
+		#######################################
+		
+		if(file.meta_information$contains_note_to_self[line_number] == TRUE){
+		  edge_list <- rbind(edge_list, data.frame(
+		    Source = file.hard_wrapped_text[(line_number)],
+		    Relationship = "Contains Type",
+		    Target = "Original Thought"
+		  ))
+		}
 	
 		
 		#######################################
