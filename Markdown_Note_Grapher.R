@@ -127,9 +127,10 @@ for(data_file_to_start in args){
 	
 	
 	# Perform the grep, returning all values (one vector per row):
+	# Note: This regex allows for two types of tags: '+tag', and '+{tag phrase that includes spaces}'. The latter is included because it allows +{phrases to be tagged} (which allows easier searching across text files)
 	tag_list_by_row <- regmatches(
 		file.text, 
-		gregexpr('\\+\\w*',file.text)
+		gregexpr('\\+\\(\\w\\|{.*}\\)*',file.text)
 	)
 	
 	# Collapse the rows into a single vector, building up over loops through files:
@@ -137,14 +138,6 @@ for(data_file_to_start in args){
 	
 	# Get unique values from the single vector:
 	master_tag_list <- c(master_tag_list, master_tag_list_for_this_file)
-	
-	# Bash should already have done this:
-	# grep --perl-regexp --only-matching --no-filename "\+\w*" ~/Desktop/Note-Taking_Network_Grapher/todo.txt | sort | uniq > /tmp/note_taking_graph_helper_unique_tags.txt
-	#master_tag_list <- system(paste('grep --perl-regexp --only-matching --no-filename "\\+\\w*" ', data_file_to_start, ' | sort | uniq'), intern=TRUE) # This could be refactored into R code (rather than bash calls) later.
-	
-	#master_tag_list_file <- "/tmp/note_taking_graph_helper_unique_tags.txt"
-	# Read the master tag list into a list:
-	#master_tag_list <- scan(master_tag_list_file, what="list", sep="\n")
 	
 	node_text_dataframe <- as.data.frame(file.text, stringsAsFactors = FALSE)
 	# View(node_text_dataframe)
