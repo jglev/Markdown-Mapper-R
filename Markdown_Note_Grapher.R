@@ -131,7 +131,13 @@ for(data_file_to_start in args){
 	# We are tolower()-ing tags to make them more connectable across files (since, e.g., +Tag and +tag would otherwise be counted as two separate tags).
 	tag_list_by_row <- regmatches(
 		file.text, 
-		gregexpr('\\+(\\w|\\{.*\\})*',file.text)
+		gregexpr('(?<!\\\\)\\+(\\w|\\{.*\\})*',file.text, perl=TRUE)
+			# Let's document this regular expression:
+				# 'perl = TRUE' is set because, following https://stackoverflow.com/questions/8834872/r-regular-expression-lookbehind#comment11030798_8834872, negative lookbehinds are only enabled in Perl regular expressions in R.
+				# Note that lots of things are double-escaped (because R requires them to be. Hence, '\\w' is just '\w' (i.e., a word character), and '\\\\' is just '\\', i.e., an escaped '\'.
+				# (?<!\\\\) ---> "Make sure that whatever is after this section (i.e., '+') is NOT preceeded by a '\'." (this is a 'negative lookbehind')
+				# \\+(\\w|\\{.*\\})* ---> "Give me every occurance of '+' followed immediately by EITHER ('|') a word character (repeated as many times as you find) ('\w*', with the * after the parentheses in the regex. above applying to everything inside of the parentheses), OR '{}', with whatever you find between them ('{.*\\}*', with the * after the parentheses in the regex. above applying to everything inside of the parentheses)
+		#gregexpr('\\+(\\w|\\{.*\\})*',file.text) # Another working version without the possibility of escaping the '+' sign.
 		#\\+\\w* # Original Regex
 	)
 	
