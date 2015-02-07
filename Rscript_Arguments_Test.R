@@ -68,7 +68,7 @@ parser$add_argument(
 	"-q",
 	"--show-quick-view-graph",
 	action="store_true", 
-	default="",
+	default=FALSE,
 	help="If this flag is set, a quick-view graph will be drawn and presented."
 )
 
