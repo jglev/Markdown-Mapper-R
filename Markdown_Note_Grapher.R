@@ -128,8 +128,7 @@ for(data_file_to_start in args){
 	
 	# Perform the grep, returning all values (one vector per row):
 	# Note: This regex allows for two types of tags: '+tag', and '+{tag phrase that includes spaces}'. The latter is included because it allows +{phrases to be tagged} (which allows easier searching across text files)
-	# We are tolower()-ing tags to make them more connectable across files (since, e.g., +Tag and +tag would otherwise be counted as two separate tags).
-	tag_list_by_row <- tolower(regmatches(
+	tag_list_by_row <- regmatches(
 		file.text, 
 		gregexpr('(?<!\\\\)\\+(\\w|\\{.*\\})*',file.text, perl=TRUE)
 			# Let's document this regular expression:
@@ -139,7 +138,10 @@ for(data_file_to_start in args){
 				# \\+(\\w|\\{.*\\})* ---> "Give me every occurance of '+' followed immediately by EITHER ('|') a word character (repeated as many times as you find) ('\w*', with the * after the parentheses in the regex. above applying to everything inside of the parentheses), OR '{}', with whatever you find between them ('{.*\\}*', with the * after the parentheses in the regex. above applying to everything inside of the parentheses)
 		#gregexpr('\\+(\\w|\\{.*\\})*',file.text) # Another working version without the possibility of escaping the '+' sign.
 		#\\+\\w* # Original Regex
-	))
+	)
+	
+	# We are tolower()-ing tags to make them more connectable across files (since, e.g., +Tag and +tag would otherwise be counted as two separate tags).
+	tag_list_by_row <- lapply(tag_list_by_row, tolower)
 	
 	# Collapse the rows into a single vector, building up over loops through files:
 	master_tag_list_for_this_file <- c(unlist(tag_list_by_row))
