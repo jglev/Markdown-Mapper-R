@@ -2,7 +2,9 @@ print("Starting test now...")
 
 library('argparse')
 
-# This follows the argparse vignette at http://cran.r-project.org/web/packages/argparse/vignettes/argparse.pdf
+# This follows the argparse vignette at http://cran.r-project.org/web/packages/argparse/vignettes/argparse.pdf, which points to https://docs.python.org/2/library/argparse.html, the documentation for the python package for which this R library is a wrapper.
+
+# A note on the argument options below: Per https://docs.python.org/2/library/argparse.html#action (the help documentation on which this R wrapper is based), action="store_const" is for flags -- it just stores a None value) (you can also use store_true or store_false to store "TRUE" and "FALSE", respectively) action="store" stores the value of the argument.
 
 parser <- ArgumentParser(
 	# Per https://docs.python.org/2/library/argparse.html#action, `prog=''` sets the name that's displayed in the auto-generated help documentation (if the user uses `--help`). Similarly with `description=''`:
@@ -12,31 +14,41 @@ parser <- ArgumentParser(
 	Usage: blah blah blah'
 )
 
-parser$add_argument("-a", "--tester", 
-	action="store", 
-	type="character", 
-	default="", 
-	help="This is a test module."
-)
+default_tag_delimiter.string <- "THIS IS A TEST"
+default_tag_delimiter.explanation <- "TEST EXPLANATION"
 
 parser$add_argument("-t", "--tag-delimiter", 
 	action="store", 
 	type="character", 
-	default="", 
-	help="A regular expression for tags. Defaults to '+{tag goes in here}'."
+	default=default_tag_delimiter.string,
+	help=paste(
+		"A regular expression for tags. Defaults to '", 
+		default_tag_delimiter.string, 
+		"'", 
+		if(default_tag_delimiter.explanation != ""){
+			paste(
+				" (",
+				default_tag_delimiter.explanation,
+				")",
+				sep=""
+			)
+		},
+		".",
+		sep=""
+	)
 )
 
 parser$add_argument(
-	"files_to_parse", 
+	"files_to_parse", # Because it lacks a '-' flag, this will be interpreted as a positional argument.
 	metavar="File to parse", # What will be displayed in the help documentation.
 	nargs='+', # Gather as many filenames as are listed into a big list, and create an error message if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
 	help="A list of plain-text files to parse."
 ) 
-# Because it lacks a '-' flag, this will be interpreted as a positional argument.
 
 
 
-# Per https://docs.python.org/2/library/argparse.html#action (the help documentation on which this R wrapper is based), action="store_const" is for flags -- it just stores a None value) (you can also use store_true or store_false to store "TRUE" and "FALSE", respectively).
+
+
 
 args <- parser$parse_args()
 
