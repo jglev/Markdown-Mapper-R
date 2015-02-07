@@ -10,8 +10,8 @@ parser <- ArgumentParser(
 	# Per https://docs.python.org/2/library/argparse.html#action, `prog=''` sets the name that's displayed in the auto-generated help documentation (if the user uses `--help`). Similarly with `description=''`:
 	prog='Markdown Network Grapher',
 	formatter_class = 'argparse.RawTextHelpFormatter', # This allows for linebreaks in the description below for the auto-generated help documentation. See http://quabr.com/27150625/r-argparse-line-breaks-in-description, which notes that line breaks must be escaped.
-	description='An edge-list and adjacency-matrix creator for notes made in markdown.\\n\\
-	Usage: blah blah blah'
+	description='An edge-list and adjacency-matrix creator for notes made in markdown.\\n\\n\\
+Explanation: blah blah blah'
 )
 
 default_tag_delimiter.string <- "THIS IS A TEST"
@@ -46,11 +46,43 @@ parser$add_argument(
 ) 
 
 
+parser$add_argument(
+	"-e",
+	"--edge-list",
+	action="store", 
+	type="character", 
+	default="",
+	help="Filename for edge list to be saved. If this is not set, an edge list will not be created."
+) 
 
+parser$add_argument(
+	"-a",
+	"--adjacency-matrix",
+	action="store", 
+	type="character", 
+	default="",
+	help="Filename for adjacency matrix to be saved. If this is not set, an adjacency matrix will not be created."
+) 
 
+parser$add_argument(
+	"-q",
+	"--show-quick-view-graph",
+	action="store_true", 
+	default="",
+	help="If this flag is set, a quick-view graph will be drawn and presented."
+)
+
+parser$add_argument(
+	"--save-quick-view-graph",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, a quick-view graph will be saved as a PDF file."
+)
 
 
 args <- parser$parse_args()
+
+print(args$save_quick_view_graph)
 
 if(args$tester != ""){
 	print("TEST IS SET")
