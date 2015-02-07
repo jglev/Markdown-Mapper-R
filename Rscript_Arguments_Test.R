@@ -28,8 +28,9 @@ parser$add_argument("-t", "--tag-delimiter",
 
 parser$add_argument(
 	"files_to_parse", 
-	metavar="[List of files to parse]", # What will be displayed in the help documentation.
-	nargs='+' # Gather as many filenames as are listed into a big list, and create an error message if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
+	metavar="File to parse", # What will be displayed in the help documentation.
+	nargs='+', # Gather as many filenames as are listed into a big list, and create an error message if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
+	help="A list of plain-text files to parse."
 ) 
 # Because it lacks a '-' flag, this will be interpreted as a positional argument.
 
