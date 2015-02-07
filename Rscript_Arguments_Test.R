@@ -1,5 +1,24 @@
 print("Starting test now...")
 
+# Define a function that installs a package if it can't be found:
+checkPackage <- function(packageName){
+	print(paste("Attempting to load package '", packageName, "'...", sep=""))
+	if(!require(packageName, character.only = TRUE)){
+		print("The package wasn't found, so we'll try to install it now...")
+		
+		# If the package is installed successfully, load it. Otherwise, give an error.
+		if(install.packages(packageName, repos = "http://cran.r-project.org")){
+			print("Package installed, so we'll try to install it now...")	
+			require(packageName, character.only = TRUE)
+		}else{
+			print(paste("ERROR: We couldn't install the package '", packageName, "' successfully. Exiting the script so that you can figure out what went wrong...", sep=""))
+		}
+	}else{
+		print("Package loaded successfully.")	
+	}
+}
+
+
 library('argparse')
 
 # This follows the argparse vignette at http://cran.r-project.org/web/packages/argparse/vignettes/argparse.pdf, which points to https://docs.python.org/2/library/argparse.html, the documentation for the python package for which this R library is a wrapper.
@@ -84,12 +103,6 @@ args <- parser$parse_args()
 
 print(args$save_quick_view_graph)
 
-if(args$tester != ""){
-	print("TEST IS SET")
-	print(paste("TEST IS: ", args$test))
-} else {
-	print("NOT SET")	
-}
 
 print("Files to parse are: ")
 print(args$files_to_parse)
