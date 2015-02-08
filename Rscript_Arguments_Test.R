@@ -19,7 +19,7 @@ checkPackage <- function(packageName){
 }
 
 
-library('argparse')
+checkPackage('argparse')
 
 # This follows the argparse vignette at http://cran.r-project.org/web/packages/argparse/vignettes/argparse.pdf, which points to https://docs.python.org/2/library/argparse.html, the documentation for the python package for which this R library is a wrapper.
 
@@ -68,19 +68,21 @@ parser$add_argument(
 parser$add_argument(
 	"-e",
 	"--edge-list",
+	metavar="Name for edge list", # What will be displayed in the help documentation.
 	action="store", 
 	type="character", 
 	default="",
-	help="Filename for edge list to be saved. If this is not set, an edge list will not be created."
+	help="Filename for CSV edge list to be saved. If this is not set, an edge list will not be created."
 ) 
 
 parser$add_argument(
 	"-a",
 	"--adjacency-matrix",
+	metavar="Name for adjacency matrix", # What will be displayed in the help documentation.
 	action="store", 
 	type="character", 
 	default="",
-	help="Filename for adjacency matrix to be saved. If this is not set, an adjacency matrix will not be created."
+	help="Filename for CSV adjacency matrix to be saved. If this is not set, an adjacency matrix will not be created."
 ) 
 
 parser$add_argument(
