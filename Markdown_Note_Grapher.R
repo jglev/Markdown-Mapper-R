@@ -30,15 +30,12 @@ checkPackage <- function(packageName, verbose = FALSE){
 		print(paste("The package '", packageName, "' wasn't found, so we'll try to install it now..."), sep="")
 		
 		# If the package is installed successfully, load it. Otherwise, give an error.
-		if(install.packages(packageName, repos = "http://cran.r-project.org")){
-			if(verbose == TRUE){
-				print("Package installed, so we'll try to load it now...")	
-				require(packageName, character.only = TRUE)
-			} else { # If verbose is NOT set to TRUE:
-				suppressMessages(require(packageName, character.only = TRUE))
-			}
-		}else{
-			print(paste("ERROR: We couldn't install the package '", packageName, "' successfully. Exiting the script so that you can figure out what went wrong...", sep=""))
+		install.packages(packageName, repos = "http://cran.r-project.org")
+		if(verbose == TRUE){
+			print("Package installed, so we'll try to load it now...")	
+			require(packageName, character.only = TRUE)
+		} else { # If verbose is NOT set to TRUE:
+			suppressMessages(require(packageName, character.only = TRUE))
 		}
 	}else{
 		if(verbose == TRUE){
