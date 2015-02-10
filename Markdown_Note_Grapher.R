@@ -22,27 +22,33 @@
 
 
 # Define a function that installs a package if it can't be found:
-checkPackage <- function(packageName){
-	print(paste("Attempting to load package '", packageName, "'...", sep=""))
+checkPackage <- function(packageName, verbose = FALSE){
+	if(verbose == TRUE){
+		print(paste("Attempting to load package '", packageName, "'...", sep=""))
+	}
 	if(suppressMessages(!require(packageName, character.only = TRUE))){
-		print("The package wasn't found, so we'll try to install it now...")
+		print(paste("The package '", packageName, "' wasn't found, so we'll try to install it now..."), sep="")
 		
 		# If the package is installed successfully, load it. Otherwise, give an error.
 		if(install.packages(packageName, repos = "http://cran.r-project.org")){
-			print("Package installed, so we'll try to install it now...")	
-			suppressMessages(require(packageName, character.only = TRUE))
+			if(verbose == TRUE){
+				print("Package installed, so we'll try to load it now...")	
+				require(packageName, character.only = TRUE)
+			} else { # If verbose is NOT set to TRUE:
+				suppressMessages(require(packageName, character.only = TRUE))
+			}
 		}else{
 			print(paste("ERROR: We couldn't install the package '", packageName, "' successfully. Exiting the script so that you can figure out what went wrong...", sep=""))
 		}
 	}else{
-		print("Package loaded successfully.")	
+		if(verbose == TRUE){
+			print("Package loaded successfully.")	
+		}
 	}
 }
 
-checkPackage('jags')
-
 # Load the argparse package, which allows for argument parsing and automatic help documentation generation.
-checkPackage('argparse')
+checkPackage('argparse', verbose = FALSE)
 
 
 
@@ -122,6 +128,14 @@ parser$add_argument(
 )
 
 parser$add_argument(
+	"-v",
+	"--verbose",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, package loading messages will be printed. (If packages need to be installed, the messages indicating that will always be printed, regardless of whether this flag is set)."
+)
+
+parser$add_argument(
 	"-q",
 	"--disable-quick-view-graph",
 	action="store_true", 
@@ -171,13 +185,15 @@ edge_list <- data.frame(
 master_tag_list <- NULL
 
 for(data_file_to_parse in args$files_to_parse){
-	print(paste("Processing file '", data_file_to_parse, "'..."))
+	if(args$verbose == TRUE){
+		print(paste("Processing file '", data_file_to_parse, "'..."))
+	}
 	
 	#data_file_to_parse <- 
 		#args[1]
 	#	"./todo.txt"
 	# Following http://stackoverflow.com/a/6603126, read in the file as a list:
-	file.text <- scan(data_file_to_parse, what="list", sep="\n", blank.lines.skip=TRUE) # Note that blank.lines.skip=TRUE will skip all blank lines in the file.
+	file.text <- scan(data_file_to_parse, what="list", sep="\n", blank.lines.skip=TRUE, quiet=!args$verbose) # Note that blank.lines.skip=TRUE will skip all blank lines in the file. !args$verbose is used here so that if verbose == TRUE, quiet will == FALSE, and vice versa.
 	
 	# Create a blank list to fill in:
 	file.meta_information <- list()
@@ -503,8 +519,8 @@ if(args$disable_master_tag_list != TRUE){
 }
 
 if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
-	checkPackage('qgraph')
-	checkPackage('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
+	checkPackage('qgraph', verbose = args$verbose)
+	checkPackage('methods', verbose = args$verbose) # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
 	
 	graph <- qgraph(
 		edge_list[c("Source", "Target")],
@@ -592,7 +608,7 @@ if(args$adjacency_matrix_name != ""){ # If we've been given anything here, we'll
 	###################
 	
 	# Following http://stackoverflow.com/a/25487162, use igraph to get an adjacency matrix from our edge list:
-	checkPackage('igraph')
+	checkPackage('igraph', verbose = args$verbose)
 	
 	adjacency_matrix <- as.matrix(
 		get.adjacency(
