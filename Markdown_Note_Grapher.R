@@ -129,7 +129,7 @@ parser$add_argument(
 
 parser$add_argument(
 	"--save-quick-view-graph",
-	metavar="Name for quick-view graph PDF file"
+	metavar="Name for quick-view graph PDF file",
 	action="store", 
 	default="",
 	help="Filename for quick-view graph to be saved (as a PDF). If this is not set, the quick-view graph will not be created."
@@ -483,26 +483,6 @@ for(data_file_to_parse in args$files_to_parse){
 #write.csv(edge_list, file="Edge_List.csv", row.names=FALSE, na="")
 #write.csv(file.meta_information, file="Meta_Information.csv", row.names=FALSE, na="")
 
-
-
-
-
-
-
-	
-	plot_title <- paste("Map of '", data_file_to_parse, "'")
-	pdf_map_output_filename <- "Network_Map.pdf"
-	
-
-
-# Make a network graph using the Edge List:
-
-library('qgraph')
-library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
-
-	
-	
-	
 	
 	
 	
@@ -514,19 +494,16 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 	# TO USE AN EDGE LIST WITH VUE: Have three columns: one for source, one for target, and one for relationship (this column can be blank, but should be there). Then, in VUE, go to Windows -> Datasets, and click "+" to import a dataset. **Set "Import as Matrix Data" to TRUE.** Then say that the dataset is "Tall" ("Wide" would be for an adjacency matrix, or correlation matrix, etc.). Select the source, target, and relationship columns. Then you're good to go!!!
 	########################
 	
+
 if(args$show_master_tag_list == TRUE){
 	message("The master list of all tags ('+tag') used in the given files is as follows:")
 	print(as.matrix(sort(table(master_tag_list), decreasing = TRUE)))
 }
 
-if(args$show_quick_view_graph == TRUE){
-	message("Generating quick-view network graph...")
+if(args$show_quick_view_graph == TRUE || args$save_quick_view_graph != ""){
+	checkPackage('qgraph')
+	checkPackage('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
 	
-	# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
-	X11(
-		width=11,
-		height=8.5
-	)
 	graph <- qgraph(
 		edge_list[c("Source", "Target")],
 		esize=5,
@@ -540,6 +517,17 @@ if(args$show_quick_view_graph == TRUE){
 		border.width=.5,
 		labels=TRUE
 	)
+}
+
+if(args$show_quick_view_graph == TRUE){
+	message("Generating quick-view network graph...")
+	
+	# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
+	X11(
+		width=11,
+		height=8.5
+	)
+	plot(graph)
 	#dev.off()
 	
 	# For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
@@ -547,16 +535,17 @@ if(args$show_quick_view_graph == TRUE){
 	#playwith(plot(graph))
 
 	# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-	message("Press Return To Continue. Press Y/y and then Return to save a PDF.")
+	message("Press Return To Continue.")
+	user_typed_response <- readLines("stdin", n=1)
 
-} # End if statement for plotting quick-view graph.
+} # End of if() statement for plotting quick-view graph.
 
 
-if(user_typed_response == 'Y' || user_typed_response == 'y'){
+if(args$save_quick_view_graph != ""){ # If we've been given anything here, we'll take it as a filepath, and save a PDF to it.
 	# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
 	
-	plot_title <- paste("Map of '", data_file_to_parse, "'")
-	pdf_map_output_filename <- "Network_Map.pdf"
+	plot_title <- paste("Map of [", paste(args$files_to_parse, collapse = ", "), "]")
+	pdf_map_output_filename <- args$save_quick_view_graph
 	
 	#png(file="animals45.png",width=1200,height=800,res=300)
 	pdf(
@@ -576,18 +565,11 @@ if(user_typed_response == 'Y' || user_typed_response == 'y'){
 	dev.off()
 	
 	message("File saved to '", getwd(), "/", pdf_map_output_filename,"'")
-}
+} # End of 'if(args$save_quick_view_graph != "")' statement
 
 
-# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-message("Press Y/y and then Return to save Edge List CSV output. Otherwise, just press Return.")
-
-#invisible(
-user_typed_response <- readLines("stdin", n=1)
-#)
-
-if(user_typed_response == 'Y' || user_typed_response == 'y'){
-	edge_list_filename <- "Edge_List.csv"
+if(args$edge_list != ""){ # If we've been given anything here, we'll take it as a filepath, and save the edge list to it.
+	edge_list_filename <- args$edge_list
 	write.csv(edge_list, file=edge_list_filename, row.names=FALSE, eol="\n", quote=TRUE)
 	message("File saved to '", getwd(), "/", edge_list_filename,"'")
 	
@@ -601,20 +583,14 @@ If you would like to use this edge list in Visual Understanding Environment (VUE
 }
 
 
-message("Press Y/y and then Return to save Adjacency Matrix CSV output. Otherwise, just press Return.")
-
-#invisible(
-user_typed_response <- readLines("stdin", n=1)
-#)
-
-if(user_typed_response == 'Y' || user_typed_response == 'y'){
+if(args$adjacency_matrix != ""){ # If we've been given anything here, we'll take it as a filepath, and save the adjecency matrix list to it.
 	
 	###################
 	# We've already created an edge list, and can at this point convert it to an adjacency matrix (i.e., going from "long"/"tall" format to "wide" format) in one step.
 	###################
 	
 	# Following http://stackoverflow.com/a/25487162, use igraph to get an adjacency matrix from our edge list:
-	library(igraph)
+	checkPackage(igraph)
 	
 	adjacency_matrix <- as.matrix(
 		get.adjacency(
@@ -623,7 +599,7 @@ if(user_typed_response == 'Y' || user_typed_response == 'y'){
 				directed=FALSE)
 		)
 	)
-	adjacency_matrix_filename <- "Adjacency_Matrix.csv"	
+	adjacency_matrix_filename <- args$adjacency_matrix
 	write.csv(adjacency_matrix, file=adjacency_matrix_filename, row.names=TRUE, eol="\n", quote=TRUE)
 	message("File saved to '", getwd(), "/", adjacency_matrix_filename,"'")
 

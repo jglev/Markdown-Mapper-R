@@ -5,10 +5,10 @@ Year: 2013
 ---
 
 
-This is a test +1 +2 +three
-Another test +2 +three
-Yet another test +three
-A fourth test here +1
+This is a test +{1} +{2} +{three}
+Another test +{2} +{three}
+Yet another test +{three}
+A fourth test here +{1}
 
 * This is line 1 of bullet
 * This is line 2 of bullet.

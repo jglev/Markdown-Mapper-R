@@ -102,15 +102,6 @@ parser$add_argument(
 )
 
 parser$add_argument(
-	"--adjacency-matrix",
-	metavar="Name for adjacency matrix", # What will be displayed in the help documentation.
-	action="store", 
-	type="character", 
-	default="",
-	help="Filename for CSV adjacency matrix to be saved. If this is not set, an adjacency matrix will not be created."
-) 
-
-parser$add_argument(
 	"--save-quick-view-graph",
 	metavar="Name for quick-view graph PDF file"
 	action="store", 
