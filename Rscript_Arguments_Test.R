@@ -86,6 +86,14 @@ parser$add_argument(
 ) 
 
 parser$add_argument(
+	"-m",
+	"--show-master-tag-list",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, a list of all of the unique tags used in the files will be printed."
+)
+
+parser$add_argument(
 	"-q",
 	"--show-quick-view-graph",
 	action="store_true", 
@@ -94,14 +102,27 @@ parser$add_argument(
 )
 
 parser$add_argument(
+	"--adjacency-matrix",
+	metavar="Name for adjacency matrix", # What will be displayed in the help documentation.
+	action="store", 
+	type="character", 
+	default="",
+	help="Filename for CSV adjacency matrix to be saved. If this is not set, an adjacency matrix will not be created."
+) 
+
+parser$add_argument(
 	"--save-quick-view-graph",
-	action="store_true", 
-	default=FALSE,
-	help="If this flag is set, a quick-view graph will be saved as a PDF file."
+	metavar="Name for quick-view graph PDF file"
+	action="store", 
+	default="",
+	help="Filename for quick-view graph to be saved (as a PDF). If this is not set, the quick-view graph will not be created."
 )
 
 
 args <- parser$parse_args()
+
+
+
 
 print(args$save_quick_view_graph)
 

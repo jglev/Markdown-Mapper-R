@@ -112,6 +112,14 @@ parser$add_argument(
 ) 
 
 parser$add_argument(
+	"-m",
+	"--show-master-tag-list",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, a list of all of the unique tags used in the files will be printed."
+)
+
+parser$add_argument(
 	"-q",
 	"--show-quick-view-graph",
 	action="store_true", 
@@ -121,9 +129,10 @@ parser$add_argument(
 
 parser$add_argument(
 	"--save-quick-view-graph",
-	action="store_true", 
-	default=FALSE,
-	help="If this flag is set, a quick-view graph will be saved as a PDF file."
+	metavar="Name for quick-view graph PDF file"
+	action="store", 
+	default="",
+	help="Filename for quick-view graph to be saved (as a PDF). If this is not set, the quick-view graph will not be created."
 )
 
 # Read all of the arguments passed into this script:
@@ -505,41 +514,43 @@ library('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.i
 	# TO USE AN EDGE LIST WITH VUE: Have three columns: one for source, one for target, and one for relationship (this column can be blank, but should be there). Then, in VUE, go to Windows -> Datasets, and click "+" to import a dataset. **Set "Import as Matrix Data" to TRUE.** Then say that the dataset is "Tall" ("Wide" would be for an adjacency matrix, or correlation matrix, etc.). Select the source, target, and relationship columns. Then you're good to go!!!
 	########################
 	
-message("The master list of all tags ('+tag') used in the given files is as follows:")
-print(as.matrix(sort(table(master_tag_list), decreasing = TRUE)))
+if(args$show_master_tag_list == TRUE){
+	message("The master list of all tags ('+tag') used in the given files is as follows:")
+	print(as.matrix(sort(table(master_tag_list), decreasing = TRUE)))
+}
 
-message("Generating quick-view network graph...")
-
-# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
-X11(
-	width=11,
-	height=8.5
-)
-graph <- qgraph(
-	edge_list[c("Source", "Target")],
-	esize=5,
-	gray=TRUE,
-	label.scale=TRUE,
-	curve=1,
-	curveAll=TRUE,
-	directed=FALSE,
-	layout='spring', # Can also be 'groups' or 'circular',
-	shape="circle",
-	border.width=.5,
-	labels=TRUE
-)
-#dev.off()
+if(args$show_quick_view_graph == TRUE){
+	message("Generating quick-view network graph...")
+	
+	# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
+	X11(
+		width=11,
+		height=8.5
+	)
+	graph <- qgraph(
+		edge_list[c("Source", "Target")],
+		esize=5,
+		gray=TRUE,
+		label.scale=TRUE,
+		curve=1,
+		curveAll=TRUE,
+		directed=FALSE,
+		layout='spring', # Can also be 'groups' or 'circular',
+		shape="circle",
+		border.width=.5,
+		labels=TRUE
+	)
+	#dev.off()
 	
 	# For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
 	#library('playwith')
 	#playwith(plot(graph))
-	
-# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-message("Press Return To Continue. Press Y/y and then Return to save a PDF.")
 
-#invisible(
-user_typed_response <- readLines("stdin", n=1)
-#)
+	# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
+	message("Press Return To Continue. Press Y/y and then Return to save a PDF.")
+
+} # End if statement for plotting quick-view graph.
+
 
 if(user_typed_response == 'Y' || user_typed_response == 'y'){
 	# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
