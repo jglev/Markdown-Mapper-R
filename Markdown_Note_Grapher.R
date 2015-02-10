@@ -24,13 +24,13 @@
 # Define a function that installs a package if it can't be found:
 checkPackage <- function(packageName){
 	print(paste("Attempting to load package '", packageName, "'...", sep=""))
-	if(!require(packageName, character.only = TRUE)){
+	if(suppressMessages(!require(packageName, character.only = TRUE))){
 		print("The package wasn't found, so we'll try to install it now...")
 		
 		# If the package is installed successfully, load it. Otherwise, give an error.
 		if(install.packages(packageName, repos = "http://cran.r-project.org")){
 			print("Package installed, so we'll try to install it now...")	
-			require(packageName, character.only = TRUE)
+			suppressMessages(require(packageName, character.only = TRUE))
 		}else{
 			print(paste("ERROR: We couldn't install the package '", packageName, "' successfully. Exiting the script so that you can figure out what went wrong...", sep=""))
 		}
@@ -38,6 +38,8 @@ checkPackage <- function(packageName){
 		print("Package loaded successfully.")	
 	}
 }
+
+checkPackage('jags')
 
 # Load the argparse package, which allows for argument parsing and automatic help documentation generation.
 checkPackage('argparse')
