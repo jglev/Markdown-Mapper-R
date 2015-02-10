@@ -590,7 +590,7 @@ if(args$adjacency_matrix != ""){ # If we've been given anything here, we'll take
 	###################
 	
 	# Following http://stackoverflow.com/a/25487162, use igraph to get an adjacency matrix from our edge list:
-	checkPackage(igraph)
+	checkPackage('igraph')
 	
 	adjacency_matrix <- as.matrix(
 		get.adjacency(
