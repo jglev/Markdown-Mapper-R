@@ -61,7 +61,7 @@ parser <- ArgumentParser(
 )
 
 default_tag_delimiter.string <- '\\+\\{.*?\\}'
-default_tag_delimiter.explanation <- "TEST EXPLANATION"
+default_tag_delimiter.explanation <- "TEST EXPLANATION" # This needs to be filled in with the explanation that's further down in the script.
 
 parser$add_argument("-t", "--tag-delimiter", 
 	action="store", 
@@ -93,7 +93,7 @@ parser$add_argument(
 
 parser$add_argument(
 	"-e",
-	"--edge-list",
+	"--edge-list-name",
 	metavar="Name for edge list", # What will be displayed in the help documentation.
 	action="store", 
 	type="character", 
@@ -103,7 +103,7 @@ parser$add_argument(
 
 parser$add_argument(
 	"-a",
-	"--adjacency-matrix",
+	"--adjacency-matrix-name",
 	metavar="Name for adjacency matrix", # What will be displayed in the help documentation.
 	action="store", 
 	type="character", 
@@ -113,22 +113,22 @@ parser$add_argument(
 
 parser$add_argument(
 	"-m",
-	"--show-master-tag-list",
+	"--disable-master-tag-list",
 	action="store_true", 
 	default=FALSE,
-	help="If this flag is set, a list of all of the unique tags used in the files will be printed."
+	help="If this flag is set, a list of all of the unique tags used in the files will NOT be printed."
 )
 
 parser$add_argument(
 	"-q",
-	"--show-quick-view-graph",
+	"--disable-quick-view-graph",
 	action="store_true", 
 	default=FALSE,
-	help="If this flag is set, a quick-view graph will be drawn and presented."
+	help="If this flag is set, a quick-view graph will NOT be drawn and presented."
 )
 
 parser$add_argument(
-	"--save-quick-view-graph",
+	"--quick-view-graph-name",
 	metavar="Name for quick-view graph PDF file",
 	action="store", 
 	default="",
@@ -137,7 +137,7 @@ parser$add_argument(
 
 # Read all of the arguments passed into this script:
 args <- parser$parse_args()
-# These can now be read with, e.g., `print(args$save_quick_view_graph)` or `print(args$files_to_parse)`
+# These can now be read with, e.g., `print(args$quick_view_graph_name)` or `print(args$files_to_parse)`
 
 ##################
 # END OF command-line options section
@@ -495,12 +495,12 @@ for(data_file_to_parse in args$files_to_parse){
 	########################
 	
 
-if(args$show_master_tag_list == TRUE){
+if(args$disable_master_tag_list != TRUE){
 	message("The master list of all tags ('+tag') used in the given files is as follows:")
 	print(as.matrix(sort(table(master_tag_list), decreasing = TRUE)))
 }
 
-if(args$show_quick_view_graph == TRUE || args$save_quick_view_graph != ""){
+if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
 	checkPackage('qgraph')
 	checkPackage('methods') # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
 	
@@ -519,7 +519,7 @@ if(args$show_quick_view_graph == TRUE || args$save_quick_view_graph != ""){
 	)
 }
 
-if(args$show_quick_view_graph == TRUE){
+if(args$disable_quick_view_graph != TRUE){
 	message("Generating quick-view network graph...")
 	
 	# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
@@ -541,11 +541,11 @@ if(args$show_quick_view_graph == TRUE){
 } # End of if() statement for plotting quick-view graph.
 
 
-if(args$save_quick_view_graph != ""){ # If we've been given anything here, we'll take it as a filepath, and save a PDF to it.
+if(args$quick_view_graph_name != ""){ # If we've been given anything here, we'll take it as a filepath, and save a PDF to it.
 	# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
 	
 	plot_title <- paste("Map of [", paste(args$files_to_parse, collapse = ", "), "]")
-	pdf_map_output_filename <- args$save_quick_view_graph
+	pdf_map_output_filename <- args$quick_view_graph_name
 	
 	#png(file="animals45.png",width=1200,height=800,res=300)
 	pdf(
@@ -565,11 +565,11 @@ if(args$save_quick_view_graph != ""){ # If we've been given anything here, we'll
 	dev.off()
 	
 	message("File saved to '", getwd(), "/", pdf_map_output_filename,"'")
-} # End of 'if(args$save_quick_view_graph != "")' statement
+} # End of 'if(args$quick_view_graph_name != "")' statement
 
 
-if(args$edge_list != ""){ # If we've been given anything here, we'll take it as a filepath, and save the edge list to it.
-	edge_list_filename <- args$edge_list
+if(args$edge_list_name != ""){ # If we've been given anything here, we'll take it as a filepath, and save the edge list to it.
+	edge_list_filename <- args$edge_list_name
 	write.csv(edge_list, file=edge_list_filename, row.names=FALSE, eol="\n", quote=TRUE)
 	message("File saved to '", getwd(), "/", edge_list_filename,"'")
 	
@@ -583,7 +583,7 @@ If you would like to use this edge list in Visual Understanding Environment (VUE
 }
 
 
-if(args$adjacency_matrix != ""){ # If we've been given anything here, we'll take it as a filepath, and save the adjecency matrix list to it.
+if(args$adjacency_matrix_name != ""){ # If we've been given anything here, we'll take it as a filepath, and save the adjecency matrix list to it.
 	
 	###################
 	# We've already created an edge list, and can at this point convert it to an adjacency matrix (i.e., going from "long"/"tall" format to "wide" format) in one step.
@@ -599,7 +599,7 @@ if(args$adjacency_matrix != ""){ # If we've been given anything here, we'll take
 				directed=FALSE)
 		)
 	)
-	adjacency_matrix_filename <- args$adjacency_matrix
+	adjacency_matrix_filename <- args$adjacency_matrix_name
 	write.csv(adjacency_matrix, file=adjacency_matrix_filename, row.names=TRUE, eol="\n", quote=TRUE)
 	message("File saved to '", getwd(), "/", adjacency_matrix_filename,"'")
 
