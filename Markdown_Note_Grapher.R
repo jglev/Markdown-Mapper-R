@@ -132,7 +132,7 @@ parser$add_argument(
 	"--verbose",
 	action="store_true", 
 	default=FALSE,
-	help="If this flag is set, package loading messages will be printed. (If packages need to be installed, the messages indicating that will always be printed, regardless of whether this flag is set)."
+	help="If this flag is set, package loading messages and progress messages will be printed. (If packages need to be installed, the messages indicating that will always be printed, regardless of whether this flag is set)."
 )
 
 parser$add_argument(
