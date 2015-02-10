@@ -21,16 +21,125 @@
 # cat file1 file2 | search-file-for-tags "\+"
 
 
+# Define a function that installs a package if it can't be found:
+checkPackage <- function(packageName){
+	print(paste("Attempting to load package '", packageName, "'...", sep=""))
+	if(!require(packageName, character.only = TRUE)){
+		print("The package wasn't found, so we'll try to install it now...")
+		
+		# If the package is installed successfully, load it. Otherwise, give an error.
+		if(install.packages(packageName, repos = "http://cran.r-project.org")){
+			print("Package installed, so we'll try to install it now...")	
+			require(packageName, character.only = TRUE)
+		}else{
+			print(paste("ERROR: We couldn't install the package '", packageName, "' successfully. Exiting the script so that you can figure out what went wrong...", sep=""))
+		}
+	}else{
+		print("Package loaded successfully.")	
+	}
+}
+
+# Load the argparse package, which allows for argument parsing and automatic help documentation generation.
+checkPackage('argparse')
 
 
 
+##################
+# Set our command-line options:
+##################
+
+# This follows the argparse vignette at http://cran.r-project.org/web/packages/argparse/vignettes/argparse.pdf, which points to https://docs.python.org/2/library/argparse.html, the documentation for the python package for which this R library is a wrapper.
+
+# A note on the argument options below: Per https://docs.python.org/2/library/argparse.html#action (the help documentation on which this R wrapper is based), action="store_const" is for flags -- it just stores a None value) (you can also use store_true or store_false to store "TRUE" and "FALSE", respectively) action="store" stores the value of the argument.
+
+parser <- ArgumentParser(
+	# Per https://docs.python.org/2/library/argparse.html#action, `prog=''` sets the name that's displayed in the auto-generated help documentation (if the user uses `--help`). Similarly with `description=''`:
+	prog='Markdown Network Grapher',
+	formatter_class = 'argparse.RawTextHelpFormatter', # This allows for linebreaks in the description below for the auto-generated help documentation. See http://quabr.com/27150625/r-argparse-line-breaks-in-description, which notes that line breaks must be escaped.
+	description='An edge-list and adjacency-matrix creator for notes made in markdown.\\n\\n\\
+	Explanation: blah blah blah'
+)
+
+default_tag_delimiter.string <- '\\+\\{.*?\\}'
+default_tag_delimiter.explanation <- "TEST EXPLANATION"
+
+parser$add_argument("-t", "--tag-delimiter", 
+	action="store", 
+	type="character", 
+	default=default_tag_delimiter.string,
+	help=paste(
+		"A regular expression for tags. Defaults to '", 
+		default_tag_delimiter.string, 
+		"'", 
+		if(default_tag_delimiter.explanation != ""){
+			paste(
+				" (",
+				default_tag_delimiter.explanation,
+				")",
+				sep=""
+			)
+		},
+		".",
+		sep=""
+	)
+)
+
+parser$add_argument(
+	"files_to_parse", # Because it lacks a '-' flag, this will be interpreted as a positional argument.
+	metavar="File to parse", # What will be displayed in the help documentation.
+	nargs='+', # Gather as many filenames as are listed into a big list, and create an error message if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
+	help="A list of plain-text files to parse."
+) 
+
+parser$add_argument(
+	"-e",
+	"--edge-list",
+	metavar="Name for edge list", # What will be displayed in the help documentation.
+	action="store", 
+	type="character", 
+	default="",
+	help="Filename for CSV edge list to be saved. If this is not set, an edge list will not be created."
+) 
+
+parser$add_argument(
+	"-a",
+	"--adjacency-matrix",
+	metavar="Name for adjacency matrix", # What will be displayed in the help documentation.
+	action="store", 
+	type="character", 
+	default="",
+	help="Filename for CSV adjacency matrix to be saved. If this is not set, an adjacency matrix will not be created."
+) 
+
+parser$add_argument(
+	"-q",
+	"--show-quick-view-graph",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, a quick-view graph will be drawn and presented."
+)
+
+parser$add_argument(
+	"--save-quick-view-graph",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, a quick-view graph will be saved as a PDF file."
+)
+
+# Read all of the arguments passed into this script:
+args <- parser$parse_args()
+# These can now be read with, e.g., `print(args$save_quick_view_graph)` or `print(args$files_to_parse)`
+
+##################
+# END OF command-line options section
+##################
 
 
 #setwd("~/Desktop/Note-Taking_Network_Grapher/")
-paste("Working from directory '", getwd(), "'...") # This will get the directory from which RScript is being called.
+#paste("Working from directory '", getwd(), "'...") # This will get the directory from which RScript is being called.
 
 # Following http://stackoverflow.com/a/4574903, read in arguments passed through a bash call to this script (using, in bash, 'Rscript /path/to/this/Script.R')
-args <- commandArgs(TRUE)
+# args <- commandArgs(TRUE)
 # As an example, print(args[1]) Print the first argument passed to the script. 'args[1]' is equivalent to '$1' in a bash script.
 
 
@@ -50,14 +159,14 @@ edge_list <- data.frame(
 # Create a blank object for the master list of all tags used across files. We'll fill this in below.
 master_tag_list <- NULL
 
-for(data_file_to_start in args){
-	print(paste("Processing file '", data_file_to_start, "'..."))
+for(data_file_to_parse in args$files_to_parse){
+	print(paste("Processing file '", data_file_to_parse, "'..."))
 	
-	#data_file_to_start <- 
+	#data_file_to_parse <- 
 		#args[1]
 	#	"./todo.txt"
 	# Following http://stackoverflow.com/a/6603126, read in the file as a list:
-	file.text <- scan(data_file_to_start, what="list", sep="\n", blank.lines.skip=TRUE) # Note that blank.lines.skip=TRUE will skip all blank lines in the file.
+	file.text <- scan(data_file_to_parse, what="list", sep="\n", blank.lines.skip=TRUE) # Note that blank.lines.skip=TRUE will skip all blank lines in the file.
 	
 	# Create a blank list to fill in:
 	file.meta_information <- list()
@@ -98,7 +207,7 @@ for(data_file_to_start in args){
 	} # End of YAML loop
 	
 	# Further fill in the metadata table:
-	file.meta_information$file_name <- data_file_to_start
+	file.meta_information$file_name <- data_file_to_parse
 	
 	file.meta_information$number_of_leading_tabs <- attr(regexpr("^(\t*)", file.text), "match.length") #The regex here is based on http://stackoverflow.com/a/3916879. We're here getting the number of leading tabs on each line, so that we can collapse each line's tabs without losing hierarchy information.
 	
@@ -130,14 +239,13 @@ for(data_file_to_start in args){
 	# Note: This regex allows for two types of tags: '+tag', and '+{tag phrase that includes spaces}'. The latter is included because it allows +{phrases to be tagged} (which allows easier searching across text files)
 	tag_list_by_row <- regmatches(
 		file.text, 
-		gregexpr('(?<!\\\\)\\+(\\w|\\{.*\\})*',file.text, perl=TRUE)
+		gregexpr(paste('(?<!\\\\)', args$tag_delimiter, sep=""),file.text, perl=TRUE)
 			# Let's document this regular expression:
 				# 'perl = TRUE' is set because, following https://stackoverflow.com/questions/8834872/r-regular-expression-lookbehind#comment11030798_8834872, negative lookbehinds are only enabled in Perl regular expressions in R.
 				# Note that lots of things are double-escaped (because R requires them to be. Hence, '\\w' is just '\w' (i.e., a word character), and '\\\\' is just '\\', i.e., an escaped '\'.
-				# (?<!\\\\) ---> "Make sure that whatever is after this section (i.e., '+') is NOT preceeded by a '\'." (this is a 'negative lookbehind')
-				# \\+(\\w|\\{.*\\})* ---> "Give me every occurance of '+' followed immediately by EITHER ('|') a word character (repeated as many times as you find) ('\w*', with the * after the parentheses in the regex. above applying to everything inside of the parentheses), OR '{}', with whatever you find between them ('{.*\\}*', with the * after the parentheses in the regex. above applying to everything inside of the parentheses)
-		#gregexpr('\\+(\\w|\\{.*\\})*',file.text) # Another working version without the possibility of escaping the '+' sign.
-		#\\+\\w* # Original Regex
+				# '(?<!\\\\)' ---> "Make sure that whatever is after this section (i.e., '+') is NOT preceeded by a '\'." (this is a 'negative lookbehind'). This allows the user to escape the string.
+				# '\\+\\{.*?\\}' ---> "Give me every occurance of '+' followed immediately by '{}', with whatever you find between them ('{.*?\\}*').
+		#\\+\\w* # Original Regex, for doing +word style tags. This interfered with writing equations (e.g., 2+2).
 	)
 	
 	# We are tolower()-ing tags to make them more connectable across files (since, e.g., +Tag and +tag would otherwise be counted as two separate tags).
@@ -358,7 +466,7 @@ for(data_file_to_start in args){
 		)
 	)
 
-} # End of 'for(data_file_to_start in args)' loop.
+} # End of 'for(data_file_to_parse in args)' loop.
 
 #View(edge_list)
 
@@ -373,7 +481,7 @@ for(data_file_to_start in args){
 
 
 	
-	plot_title <- paste("Map of '", data_file_to_start, "'")
+	plot_title <- paste("Map of '", data_file_to_parse, "'")
 	pdf_map_output_filename <- "Network_Map.pdf"
 	
 
@@ -436,7 +544,7 @@ user_typed_response <- readLines("stdin", n=1)
 if(user_typed_response == 'Y' || user_typed_response == 'y'){
 	# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
 	
-	plot_title <- paste("Map of '", data_file_to_start, "'")
+	plot_title <- paste("Map of '", data_file_to_parse, "'")
 	pdf_map_output_filename <- "Network_Map.pdf"
 	
 	#png(file="animals45.png",width=1200,height=800,res=300)
