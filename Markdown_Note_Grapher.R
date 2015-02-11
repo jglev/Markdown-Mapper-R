@@ -519,7 +519,7 @@ if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
 	checkPackage('qgraph', verbose = args$verbose)
 	checkPackage('methods', verbose = args$verbose) # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
 	
-	options(device = "png") # This isn't here because we're writing a png, or anything else at this point. Rather, its here following https://stackoverflow.com/questions/6535927/how-do-i-prevent-rplots-pdf-from-being-generated#comment7703252_6536120 so that R has an open display driver when it generates the graph below. Lacking this, a (blank) file called 'Rplots.pdf' is automatically created in the working directory. This happens as a result of running this script from Rscript.
+	pdf(file = NULL) # This isn't here because we're writing a pdf or anything else at this point. Rather, its here following so that R has an open display driver when it generates the graph below. Lacking this, a (blank) file called 'Rplots.pdf' is automatically created in the working directory. This happens as a result of running this script from Rscript, and happens even if 'DoNotPlot = TRUE' is set in qgraph().
 	graph <- qgraph(
 		edge_list[c("Source", "Target")],
 		esize=5,
@@ -534,7 +534,6 @@ if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
 		labels=TRUE,
 		DoNotPlot=TRUE
 	)
-	dev.off()
 }
 
 if(args$disable_quick_view_graph != TRUE){
