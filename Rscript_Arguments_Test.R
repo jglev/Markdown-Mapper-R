@@ -140,7 +140,7 @@ if(length(args$change_phrase_from) != length(args$change_phrase_into)){ # If we'
 	stop("ERROR: The '--change-phrase-from' and '--change-phrase-into' lists don't match up -- they are not the same length (this could be because you forgot to pair them up for every phrase you want to replace, if it's more than 1). Exiting so that you can figure out what went wrong.")
 }
 
-
+# If we want to replace these as-is, we can do an apply loop with them combined using cbind as soon as we read in each file. The code to do so without treating these as regular expressions is `gsub("{test", "REPLACED", "This is a {test etc. {", fixed=TRUE)`.
 
 
 
