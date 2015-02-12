@@ -103,19 +103,49 @@ parser$add_argument(
 
 parser$add_argument(
 	"--save-quick-view-graph",
-	metavar="Name for quick-view graph PDF file"
 	action="store", 
 	default="",
 	help="Filename for quick-view graph to be saved (as a PDF). If this is not set, the quick-view graph will not be created."
 )
 
 
+
+
+parser$add_argument(
+	"-f",
+	"--change-phrase-from",
+	metavar="Phrase to target for replacing", # What will be displayed in the help documentation.
+	action="append", # This argument can be specified multiple times, and will be saved into a list.
+	type="character", 
+	default="",
+	help="To be used to create a dictionary for turning one phrase into another. Needs to be paired with '--change-phrase-to'. Can be used multiple times for multiple phrases (in that case, the elements in the 'from' and 'to' lists are matched up in the order they were created. This is especially useful for consolidating similar tags. NOTE: This flag DOES NOT change the original input file at all."
+) 
+
+
+parser$add_argument(
+	"-i",
+	"--change-phrase-into",
+	metavar="Phrase with which to replace another phrase", # What will be displayed in the help documentation.
+	action="append", # This argument can be specified multiple times, and will be saved into a list.
+	type="character", 
+	default="",
+	help="To be used to create a dictionary for turning one phrase into another. Needs to be paired with '--change-phrase-from'. Can be used multiple times for multiple phrases (in that case, the elements in the 'from' and 'to' lists are matched up in the order they were created. This is especially useful for consolidating similar tags. NOTE: This flag DOES NOT change the original input file at all."
+) 
+
+
 args <- parser$parse_args()
 
 
+if(length(args$change_phrase_from) != length(args$change_phrase_to)){ # If we've been given a dictionary of replacement terms to use, but the 'from' and 'to' columns don't match up, throw an error:
+	stop("ERROR: The '--change-phrase-from' and '--change-phrase-into' lists don't match up -- they are not the same length (this could be because you forgot to pair them up for every phrase you want to replace, if it's more than 1). Exiting so that you can figure out what went wrong.")
+}
 
 
-print(args$save_quick_view_graph)
+
+
+
+
+print(args$dictionary_term)
 
 
 print("Files to parse are: ")
