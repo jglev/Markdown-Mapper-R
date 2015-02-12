@@ -65,7 +65,7 @@ parser <- ArgumentParser(
 	Explanation: blah blah blah'
 )
 
-default_tag_delimiter.string <- '\\+\\{.*?\\}'
+default_tag_delimiter.string <- '(\\+|\\@)\\{.*?\\}'
 default_tag_delimiter.explanation <- "TEST EXPLANATION" # This needs to be filled in with the explanation that's further down in the script.
 
 parser$add_argument("-t", "--tag-delimiter", 
