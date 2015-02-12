@@ -522,7 +522,7 @@ if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
 	pdf(file = NULL) # This isn't here because we're writing a pdf or anything else at this point. Rather, its here following so that R has an open display driver when it generates the graph below. Lacking this, a (blank) file called 'Rplots.pdf' is automatically created in the working directory. This happens as a result of running this script from Rscript, and happens even if 'DoNotPlot = TRUE' is set in qgraph().
 	graph <- qgraph(
 		edge_list[c("Source", "Target")],
-		esize=5,
+		esize=1,
 		gray=TRUE,
 		label.scale=TRUE,
 		curve=1,

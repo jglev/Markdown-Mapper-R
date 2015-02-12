@@ -1,4 +1,2 @@
-* Add @{} support along with +{} support
 * Allow flag to replace terms with other terms (do a big sed at the beginning of each file read)
-* Decrease qgraph line width
 
