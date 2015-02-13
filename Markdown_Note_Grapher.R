@@ -230,11 +230,35 @@ for(data_file_to_parse in args$files_to_parse){
 		
 		# For each row of the dictionar, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column). 
 		for(row_number in 1:nrow(full_dictionary_to_use)){
-			file.text <- gsub(full_dictionary_to_use[row_number, "From"], full_dictionary_to_use[row_number, "To"], file.text, fixed = TRUE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
+
+			# We want to use 'ignore.case = TRUE' for gsub below, which means NOT using 'fixed = TRUE'. So we need to escape all of the characters in the 'From' column that could be interpreted as regular expression characters:
+			list_of_regular_expression_symbols_to_escape <- c( # Following the list at http://stackoverflow.com/a/9310752/1940466
+				'[', # Note: for some reason, '\\]' makes the search that uses this vector below stop working, so I'm not using it here.
+				'-',
+				'\\',
+				'{',
+				'}',
+				'(',
+				')',
+				'*',
+				'+',
+				'?',
+				'.',
+				',',
+				'^',
+				'$',
+				'|'
+			)
+			
+			list_of_regular_expression_symbols_to_escape.collapsed <- paste(list_of_regular_expression_symbols_to_escape, sep= "", collapse = '\\')
+			list_of_regular_expression_symbols_to_escape.collapsed <- paste('\\', list_of_regular_expression_symbols_to_escape.collapsed, sep = "") # Add '\\' before the first element in the list above, since it would have been missed by our last paste(sep='\\') command.
+			
+			dictionary_column_for_from.sanitized <- gsub(paste('([', list_of_regular_expression_symbols_to_escape.collapsed, '])', sep = ""), '\\\\\\1', full_dictionary_to_use[row_number, "From"])
+			#gsub('([\\{\\}\\+])', '\\\\\\1', from2, fixed = FALSE)
+			
+			
+			file.text <- gsub(dictionary_column_for_from.sanitized, full_dictionary_to_use[row_number, "To"], file.text, ignore.case = TRUE, fixed = FALSE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
 		}
-		
-		#We'll use mapply, following http://stackoverflow.com/a/19426663 (although that link notes it might not work in all cases):
-		#file.text <- mapply(gsub, args$change_phrase_from, args$change_phrase_into, file.text, fixed = TRUE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
 	}
 	
 	# Create a blank list to fill in:
