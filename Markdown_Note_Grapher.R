@@ -225,7 +225,7 @@ for(data_file_to_parse in args$files_to_parse){
 		
 		if(args$verbose == TRUE){ # If verbose is set to TRUE, print the dictionary that we're using for the user.
 			message("Processing the following dictionary of terms:")
-			cat(paste("'", full_dictionary_to_use$From, "'", " => ", "'", full_dictionary_to_use$To, "'", sep = "", collapse = "\n"), "\n\n") # I'm using cat() rather than paste() here so that newline characters (\n) are respected.
+			cat(paste("'", full_dictionary_to_use$From, "'", "\t=>\t", "'", full_dictionary_to_use$To, "'", sep = "", collapse = "\n"), "\n\n") # I'm using cat() rather than paste() here so that newline characters (\n) are respected. Within the paste() function, '\t' is a tab character.
 		}
 		
 		# For each row of the dictionar, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column). 
