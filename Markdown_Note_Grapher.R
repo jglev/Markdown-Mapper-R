@@ -220,18 +220,13 @@ for(data_file_to_parse in args$files_to_parse){
 	file.text <- scan(data_file_to_parse, what="list", sep="\n", blank.lines.skip=TRUE, quiet=!args$verbose) # Note that blank.lines.skip=TRUE will skip all blank lines in the file. !args$verbose is used here so that if verbose == TRUE, quiet will == FALSE, and vice versa.
 
 	# If we were given a dictionary to use, replace relevant phrases from the file text:
-	if(length(args$change_phrase_from) > 1) { # We already checked above that the change_phrase_from and change_phrase_to objects are the same length, so no need to check again here.
-
+	if(length(args$change_phrase_from) > 0) { # We already checked above that the change_phrase_from and change_phrase_to objects are the same length, so no need to check again here.
+		print("Parsing dictionary for file...")
+		
 		full_dictionary_to_use <- cbind(From = args$change_phrase_from, To = args$change_phrase_to)
 		
-		file.text <- apply(file.text, 1, function(row_from_file){
-
-			# For each row of the dictionar, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column)
-			for(row_from_dictionary in full_dictionary_to_use){
-				file.text.replaced <- gsub(row_from_dictionary$From, row_from_dictionary$To, row_from_file)
-			}
-			return(file.text.replaced)
-		})
+		# For each row of the dictionar, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column). We'll use mapply, following http://stackoverflow.com/a/19426663 (although that link notes it might not work in all cases):
+		file.text <- mapply(gsub, args$change_phrase_from, args$change_phrase_into, file.text, fixed = TRUE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
 	}
 	
 	# Create a blank list to fill in:
