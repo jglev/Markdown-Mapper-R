@@ -92,8 +92,9 @@ parser$add_argument("-t", "--tag-delimiter",
 parser$add_argument(
 	"files_to_parse", # Because it lacks a '-' flag, this will be interpreted as a positional argument.
 	metavar="File to parse", # What will be displayed in the help documentation.
-	nargs='+', # Gather as many filenames as are listed into a big list, and create an error message if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
-	help="A list of plain-text files to parse."
+	nargs='*', # Gather as many filenames as are listed into a big list, and create an error message if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
+	help="A list of plain-text files to parse.",
+	default="stdin"
 ) 
 
 parser$add_argument(
@@ -172,6 +173,8 @@ parser$add_argument(
 # Read all of the arguments passed into this script:
 args <- parser$parse_args()
 # These can now be read with, e.g., `print(args$quick_view_graph_name)` or `print(args$files_to_parse)`
+
+print(args$files_to_parse)
 
 ##################
 # END OF command-line options section
@@ -599,8 +602,9 @@ if(args$disable_quick_view_graph != TRUE){
 	#playwith(plot(graph))
 
 	# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-	message("Press Return To Continue.")
-	user_typed_response <- readLines("stdin", n=1)
+	#message("Press Return To Continue.")
+	#user_typed_response <- readLines("stdin", n=1)
+	invisible(readline(prompt="Press [enter] to continue")) # Following http://stackoverflow.com/a/18746519
 
 } # End of if() statement for plotting quick-view graph.
 
