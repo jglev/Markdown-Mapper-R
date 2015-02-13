@@ -221,12 +221,20 @@ for(data_file_to_parse in args$files_to_parse){
 
 	# If we were given a dictionary to use, replace relevant phrases from the file text:
 	if(length(args$change_phrase_from) > 0) { # We already checked above that the change_phrase_from and change_phrase_to objects are the same length, so no need to check again here.
-		print("Parsing dictionary for file...")
+		full_dictionary_to_use <- data.frame("From" = args$change_phrase_from, "To" = args$change_phrase_into)
 		
-		full_dictionary_to_use <- cbind(From = args$change_phrase_from, To = args$change_phrase_to)
+		if(args$verbose == TRUE){ # If verbose is set to TRUE, print the dictionary that we're using for the user.
+			message("Processing the following dictionary of terms:")
+			cat(paste("'", full_dictionary_to_use$From, "'", " => ", "'", full_dictionary_to_use$To, "'", sep = "", collapse = "\n"), "\n\n") # I'm using cat() rather than paste() here so that newline characters (\n) are respected.
+		}
 		
-		# For each row of the dictionar, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column). We'll use mapply, following http://stackoverflow.com/a/19426663 (although that link notes it might not work in all cases):
-		file.text <- mapply(gsub, args$change_phrase_from, args$change_phrase_into, file.text, fixed = TRUE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
+		# For each row of the dictionar, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column). 
+		for(row_number in 1:nrow(full_dictionary_to_use)){
+			file.text <- gsub(full_dictionary_to_use[row_number, "From"], full_dictionary_to_use[row_number, "To"], file.text, fixed = TRUE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
+		}
+		
+		#We'll use mapply, following http://stackoverflow.com/a/19426663 (although that link notes it might not work in all cases):
+		#file.text <- mapply(gsub, args$change_phrase_from, args$change_phrase_into, file.text, fixed = TRUE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
 	}
 	
 	# Create a blank list to fill in:
