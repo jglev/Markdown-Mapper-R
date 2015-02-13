@@ -131,21 +131,31 @@ parser$add_argument(
 ) 
 
 
+
+
+parser$add_argument(
+	"-",
+	"--stdin",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, stdin will be read as an input file."
+)
+
+
+
 args <- parser$parse_args()
 
-print(length(args$change_phrase_from))
-print(length(args$change_phrase_into))
 
-if(length(args$change_phrase_from) != length(args$change_phrase_into)){ # If we've been given a dictionary of replacement terms to use, but the 'from' and 'to' columns don't match up, throw an error:
-	stop("ERROR: The '--change-phrase-from' and '--change-phrase-into' lists don't match up -- they are not the same length (this could be because you forgot to pair them up for every phrase you want to replace, if it's more than 1). Exiting so that you can figure out what went wrong.")
+if(args$stdin == TRUE){
+	args$files_to_parse <- rbind(args$files_to_parse, file("stdin"))
 }
 
-# If we want to replace these as-is, we can do an apply loop with them combined using cbind as soon as we read in each file. The code to do so without treating these as regular expressions is `gsub("{test", "REPLACED", "This is a {test etc. {", fixed=TRUE)`.
+#readLines(file("stdin"))
+scan(file = "stdin", what="character")
 
 
+#invisible(readline(prompt="Press [enter] to continue")) # Following http://stackoverflow.com/a/18746519
 
-
-#print(args$dictionary_term)
 
 
 print("Files to parse are: ")
