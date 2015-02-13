@@ -148,6 +148,27 @@ parser$add_argument(
 	help="Filename for quick-view graph to be saved (as a PDF). If this is not set, the quick-view graph will not be created."
 )
 
+
+parser$add_argument(
+	"-f",
+	"--change-phrase-from",
+	metavar="Phrase to target for replacing", # What will be displayed in the help documentation.
+	action="append", # This argument can be specified multiple times, and will be saved into a list.
+	type="character", 
+	help="To be used to create a dictionary for turning one phrase into another. Needs to be paired with '--change-phrase-to'. Can be used multiple times for multiple phrases (in that case, the elements in the 'from' and 'to' lists are matched up in the order they were created. This is especially useful for consolidating similar tags. NOTE: This flag DOES NOT change the original input file at all."
+) 
+
+
+parser$add_argument(
+	"-i",
+	"--change-phrase-into",
+	metavar="Phrase with which to replace another phrase", # What will be displayed in the help documentation.
+	action="append", # This argument can be specified multiple times, and will be saved into a list.
+	type="character", 
+	help="To be used to create a dictionary for turning one phrase into another. Needs to be paired with '--change-phrase-from'. Can be used multiple times for multiple phrases (in that case, the elements in the 'from' and 'to' lists are matched up in the order they were created. This is especially useful for consolidating similar tags. NOTE: This flag DOES NOT change the original input file at all."
+) 
+
+
 # Read all of the arguments passed into this script:
 args <- parser$parse_args()
 # These can now be read with, e.g., `print(args$quick_view_graph_name)` or `print(args$files_to_parse)`
@@ -155,6 +176,12 @@ args <- parser$parse_args()
 ##################
 # END OF command-line options section
 ##################
+
+
+if(length(args$change_phrase_from) != length(args$change_phrase_into)){ # If we've been given a dictionary of replacement terms to use, but the 'from' and 'to' columns don't match up, throw an error:
+		stop("ERROR: The '--change-phrase-from' and '--change-phrase-into' lists don't match up -- they are not the same length (this could be because you forgot to pair them up for every phrase you want to replace, if it's more than 1). Exiting so that you can figure out what went wrong.")
+}
+
 
 
 #setwd("~/Desktop/Note-Taking_Network_Grapher/")
@@ -191,6 +218,16 @@ for(data_file_to_parse in args$files_to_parse){
 	#	"./todo.txt"
 	# Following http://stackoverflow.com/a/6603126, read in the file as a list:
 	file.text <- scan(data_file_to_parse, what="list", sep="\n", blank.lines.skip=TRUE, quiet=!args$verbose) # Note that blank.lines.skip=TRUE will skip all blank lines in the file. !args$verbose is used here so that if verbose == TRUE, quiet will == FALSE, and vice versa.
+
+	# If we were given a dictionary to use, replace relevant phrases from the file text:
+	if(length(args$change_phrase_from) > 1) { # We already checked above that the change_phrase_from and change_phrase_to objects are the same length, so no need to check again here.
+		fullDictionaryToUse <- cbind(From = args$change_phrase_from, To = args$change_phrase_to)
+		
+		file.text <- apply(fullDictionaryToUse, 1, function(rowFromDictionary){
+			# For each row of the dictionar, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column)
+			gsub(rowFromDictionary$From, rowFromDictionary$To, file.text)
+		})
+	}
 	
 	# Create a blank list to fill in:
 	file.meta_information <- list()
@@ -512,7 +549,9 @@ for(data_file_to_parse in args$files_to_parse){
 
 if(args$disable_master_tag_list != TRUE){
 	message("The master list of all tags ('+tag') used in the given files is as follows:")
-	print(as.matrix(sort(table(master_tag_list), decreasing = TRUE)))
+	tag_list_to_print <- as.matrix(sort(table(master_tag_list), decreasing = TRUE))
+	colnames(tag_list_to_print) <- "Count"
+	print(tag_list_to_print)
 }
 
 if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
