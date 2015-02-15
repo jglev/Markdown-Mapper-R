@@ -84,7 +84,7 @@ parser$add_argument("-t", "--tag-delimiter",
 				sep=""
 			)
 		},
-		".",
+		". Special characters in R regular expressions need to be double-escaped (i.e., preceeded by two backslashes). Some examples: '\\\\@\\\\w*' will search for all tags of the form @tag . '\\\\+\\\\w*' will search for all tags of the form +tag . '[\\\\@\\\\+]\\\\w*' will search for both @tag and +tag . For more information on regular expressions in R, see http://www.regular-expressions.info/rlanguage.html",
 		sep=""
 	)
 )
