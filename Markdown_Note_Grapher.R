@@ -66,7 +66,7 @@ parser <- ArgumentParser(
 )
 
 default_tag_delimiter.string <- '(\\+|\\@)\\{.*?\\}'
-default_tag_delimiter.explanation <- "TEST EXPLANATION" # This needs to be filled in with the explanation that's further down in the script.
+default_tag_delimiter.explanation <- "This is equivalent to saying 'Give me every occurance of '+' or '@' followed immediately by '{}', with whatever you find between them ('{.*?\\}*')." # This needs to be filled in with the explanation that's further down in the script.
 
 parser$add_argument("-t", "--tag-delimiter", 
 	action="store", 
@@ -337,8 +337,6 @@ for(data_file_to_parse in args$files_to_parse){
 				# 'perl = TRUE' is set because, following https://stackoverflow.com/questions/8834872/r-regular-expression-lookbehind#comment11030798_8834872, negative lookbehinds are only enabled in Perl regular expressions in R.
 				# Note that lots of things are double-escaped (because R requires them to be. Hence, '\\w' is just '\w' (i.e., a word character), and '\\\\' is just '\\', i.e., an escaped '\'.
 				# '(?<!\\\\)' ---> "Make sure that whatever is after this section (i.e., '+') is NOT preceeded by a '\'." (this is a 'negative lookbehind'). This allows the user to escape the string.
-				# '\\+\\{.*?\\}' ---> "Give me every occurance of '+' followed immediately by '{}', with whatever you find between them ('{.*?\\}*').
-		#\\+\\w* # Original Regex, for doing +word style tags. This interfered with writing equations (e.g., 2+2).
 	)
 	
 	# We are tolower()-ing tags to make them more connectable across files (since, e.g., +Tag and +tag would otherwise be counted as two separate tags).
