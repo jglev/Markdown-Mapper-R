@@ -101,7 +101,8 @@ parser <- ArgumentParser(
 )
 
 default_tag_delimiter.string <- '(\\+|\\@)\\{.*?\\}'
-default_tag_delimiter.explanation <- "This is equivalent to saying 'Give me every occurance of '+' or '@' followed immediately by '{}', with whatever you find between them ('{.*?\\}*')." # This needs to be filled in with the explanation that's further down in the script.
+default_tag_delimiter.string.formatted_for_help_documentation <- '(\\\\+|\\\\@)\\\\{.*?\\\\}' # This just escapes the backslashes so that they also all show up in the help documentation below.
+default_tag_delimiter.explanation <- "This is equivalent to saying 'Give me every occurance of '+' or '@' followed immediately by '{}', with whatever you find between them ('{.*?\\\\}*')'. The curly braces {} are nice because they allow for both single-word +{tags}, as well as tags that have spaces, like this: +{this is a multi-line tag}." # This needs to be filled in with the explanation that's further down in the script. Note that this also escapes the backslashes so that they also all show up in the help documentation below.
 
 parser$add_argument("-t", "--tag-delimiter", 
 	action="store", 
@@ -109,17 +110,16 @@ parser$add_argument("-t", "--tag-delimiter",
 	default=default_tag_delimiter.string,
 	help=paste(
 		"A regular expression for tags. Defaults to '", 
-		default_tag_delimiter.string, 
+		default_tag_delimiter.string.formatted_for_help_documentation, 
 		"'", 
 		if(default_tag_delimiter.explanation != ""){
 			paste(
-				" (",
+				". ",
 				default_tag_delimiter.explanation,
-				")",
 				sep=""
 			)
 		},
-		". Special characters in R regular expressions need to be double-escaped (i.e., preceeded by two backslashes). Some examples: '\\\\@\\\\w*' will search for all tags of the form @tag . '\\\\+\\\\w*' will search for all tags of the form +tag . '[\\\\@\\\\+]\\\\w*' will search for both @tag and +tag . For more information on regular expressions in R, see http://www.regular-expressions.info/rlanguage.html",
+		" Note that special characters in R regular expressions need to be double-escaped (i.e., preceeded by two backslashes). Some examples: '\\\\@\\\\w*' will search for all tags of the form '@tag'. '\\\\+\\\\w*' will search for all tags of the form '+tag'. '[\\\\@\\\\+]\\\\w*' will search for both '@tag' and '+tag'. For more information on regular expressions in R, see http://www.regular-expressions.info/rlanguage.html",
 		sep=""
 	)
 )
