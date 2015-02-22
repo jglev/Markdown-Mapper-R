@@ -606,7 +606,7 @@ for(data_file_to_parse in args$files_to_parse){
 	
 
 if(args$disable_master_tag_list != TRUE){
-	message("The master list of all tags ('+tag') used in the given files is as follows:")
+	message("The master list of all tags used in the given files is as follows:")
 	tag_list_to_print <- as.matrix(sort(table(master_tag_list), decreasing = TRUE))
 	colnames(tag_list_to_print) <- "Count"
 	print(tag_list_to_print)
