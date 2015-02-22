@@ -176,6 +176,14 @@ parser$add_argument(
 )
 
 parser$add_argument(
+	"-s",
+	"--suppress-file-metadata",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, the program will ignore metadata included at the top of the file (except for the filename, which is used as a node in the graph even when this flag is set."
+)
+
+parser$add_argument(
 	"--quick-view-graph-name",
 	metavar="Name for quick-view graph PDF file",
 	action="store", 
@@ -545,18 +553,19 @@ for(data_file_to_parse in args$files_to_parse){
 	#file_name
 	if(length(yaml_metadata_for_file.parsed) > 0){
 		# print(paste("The parsed YAML Metadata for the file is as follows:", yaml_metadata_for_file.parsed)) # Good for debugging.
-		
-		for(metadata_line in yaml_metadata_for_file.parsed) {
-			yaml_title <- metadata_line[[1]]
-			edge_list <- rbind(
-				edge_list,
-				data.frame(
-					Source = file.meta_information$hard_wrapped_text,
-					Relationship = yaml_title,
-					Target = file.meta_information[[yaml_title]]
+		if(args$suppress_file_metadata != TRUE){ # If we haven't been told not to pay attention to the metadata...
+			for(metadata_line in yaml_metadata_for_file.parsed) {
+				yaml_title <- metadata_line[[1]]
+				edge_list <- rbind(
+					edge_list,
+					data.frame(
+						Source = file.meta_information$hard_wrapped_text,
+						Relationship = yaml_title,
+						Target = file.meta_information[[yaml_title]]
+					)
 				)
-			)
-		}
+			}
+		} # End of 'If suppress_file_metadata != TRUE' statement.
 	}
 	
 	edge_list <- rbind(

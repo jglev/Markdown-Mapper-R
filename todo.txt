@@ -1,1 +1,1 @@
-
+Allow for suppressing file metadata (since it sometimes clutters the view).
