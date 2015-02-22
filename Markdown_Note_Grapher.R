@@ -569,19 +569,16 @@ for(data_file_to_parse in args$files_to_parse){
 			if(length(args$use_specific_file_metadata) > 0){ # If we HAVE been given a list of metadata to use...
 				list_of_metadata_lines_to_use <- args$use_specific_file_metadata
 			} else { # If we HAVEN'T been given a list of metadata to use, then use all of the metadata in the file...
-				list_of_metadata_lines_to_use <- lapply(yaml_metadata_for_file.parsed, function(lineOfYaml) lineOfYaml[1])
+				list_of_metadata_lines_to_use <- lapply(yaml_metadata_for_file.parsed, function(lineOfYaml) lineOfYaml[1]) # Get the first item (i.e., the title of that line) out of each line of metadata.
 			}
 
-			print("LIST OF METADATA TO USE IS:")
-			print(list_of_metadata_lines_to_use)
-			
 			for(metadata_line in yaml_metadata_for_file.parsed) {
 				
-				if(exists(metadata_line, where = as.list(list_of_metadata_lines_to_use))) { # Check whether the piece of metadata that we're currently looking at is in the list of metadata that we're supposed to use (which was set above)...
-					print(paste("Including metadata '", metadata_line, "'...", sep = ""))
-					
-					yaml_title <- metadata_line[[1]]
-					
+				yaml_title <- metadata_line[[1]]
+
+				if(tolower(yaml_title) %in% tolower(list_of_metadata_lines_to_use)) { # Check whether the piece of metadata that we're currently looking at is in the list of metadata that we're supposed to use (which was set above)...
+					print(paste("Including metadata '", yaml_title, "'...", sep = ""))
+										
 					edge_list <- rbind(
 						edge_list,
 						data.frame(
