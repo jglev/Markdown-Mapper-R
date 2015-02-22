@@ -554,6 +554,9 @@ for(data_file_to_parse in args$files_to_parse){
 	if(length(yaml_metadata_for_file.parsed) > 0){
 		# print(paste("The parsed YAML Metadata for the file is as follows:", yaml_metadata_for_file.parsed)) # Good for debugging.
 		if(args$suppress_file_metadata != TRUE){ # If we haven't been told not to pay attention to the metadata...
+			if(args$verbose == TRUE){ 
+				print("Including file metadata in network graph...")
+			}
 			for(metadata_line in yaml_metadata_for_file.parsed) {
 				yaml_title <- metadata_line[[1]]
 				edge_list <- rbind(
@@ -566,6 +569,11 @@ for(data_file_to_parse in args$files_to_parse){
 				)
 			}
 		} # End of 'If suppress_file_metadata != TRUE' statement.
+		else { # If we HAVE been told not to include metadata in the network map...
+			if(args$verbose == TRUE){ 
+				print("NOT including file metadata in network graph (except for filename)...")
+			}
+		}
 	}
 	
 	edge_list <- rbind(
