@@ -184,13 +184,21 @@ parser$add_argument(
 )
 
 parser$add_argument(
+	"-u",
+	"--use-specific-file-metadata",
+	metavar="Name of metadata field", # What will be displayed in the help documentation.
+	action="append", # This argument can be specified multiple times, and will be saved into a list.
+	type="character", 
+	help="Sets a specific piece of metadata at the top of each file (e.g., 'Year') to be used in the network graph. Is not case-sensitive (i.e., 'Year' will match both 'Year' and 'year'). Can be used multiple times for multiple phrases. Is turned off if --suppress-file-metadata is turned on."
+) 
+
+parser$add_argument(
 	"--quick-view-graph-name",
 	metavar="Name for quick-view graph PDF file",
 	action="store", 
 	default="",
 	help="Filename for quick-view graph to be saved (as a PDF). If this is not set, the quick-view graph will not be created."
 )
-
 
 parser$add_argument(
 	"-f",
@@ -200,7 +208,6 @@ parser$add_argument(
 	type="character", 
 	help="To be used to create a dictionary for turning one phrase into another. Needs to be paired with '--change-phrase-to'. Can be used multiple times for multiple phrases (in that case, the elements in the 'from' and 'to' lists are matched up in the order they were created. This is especially useful for consolidating similar tags. NOTE: This flag DOES NOT change the original input file at all."
 ) 
-
 
 parser$add_argument(
 	"-i",
@@ -557,16 +564,35 @@ for(data_file_to_parse in args$files_to_parse){
 			if(args$verbose == TRUE){ 
 				print("Including file metadata in network graph...")
 			}
+
+			# Check whether we're supposed to only use specific pieces of metadata; if so, only add those to the graph. Otherwise, add all pieces of metadata to the graph:
+			if(length(args$use_specific_file_metadata) > 0){ # If we HAVE been given a list of metadata to use...
+				list_of_metadata_lines_to_use <- args$use_specific_file_metadata
+			} else { # If we HAVEN'T been given a list of metadata to use, then use all of the metadata in the file...
+				list_of_metadata_lines_to_use <- lapply(yaml_metadata_for_file.parsed, function(lineOfYaml) lineOfYaml[1])
+			}
+
+			print("LIST OF METADATA TO USE IS:")
+			print(list_of_metadata_lines_to_use)
+			
 			for(metadata_line in yaml_metadata_for_file.parsed) {
-				yaml_title <- metadata_line[[1]]
-				edge_list <- rbind(
-					edge_list,
-					data.frame(
-						Source = file.meta_information$hard_wrapped_text,
-						Relationship = yaml_title,
-						Target = file.meta_information[[yaml_title]]
+				
+				if(exists(metadata_line, where = as.list(list_of_metadata_lines_to_use))) { # Check whether the piece of metadata that we're currently looking at is in the list of metadata that we're supposed to use (which was set above)...
+					print(paste("Including metadata '", metadata_line, "'...", sep = ""))
+					
+					yaml_title <- metadata_line[[1]]
+					
+					edge_list <- rbind(
+						edge_list,
+						data.frame(
+							Source = file.meta_information$hard_wrapped_text,
+							Relationship = yaml_title,
+							Target = file.meta_information[[yaml_title]]
+						)
 					)
-				)
+				} else { # If the metadata ISN'T in the list that we're supposed to use...
+					print(paste("NOT including metadata '", metadata_line, "'...", sep = ""))
+				}
 			}
 		} # End of 'If suppress_file_metadata != TRUE' statement.
 		else { # If we HAVE been told not to include metadata in the network map...
