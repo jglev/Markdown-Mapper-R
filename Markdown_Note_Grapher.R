@@ -577,7 +577,9 @@ for(data_file_to_parse in args$files_to_parse){
 				yaml_title <- metadata_line[[1]]
 
 				if(tolower(yaml_title) %in% tolower(list_of_metadata_lines_to_use)) { # Check whether the piece of metadata that we're currently looking at is in the list of metadata that we're supposed to use (which was set above)...
-					print(paste("Including metadata '", yaml_title, "'...", sep = ""))
+					if(args$verbose == TRUE){
+						print(paste("Including metadata '", yaml_title, "'...", sep = ""))
+					}
 										
 					edge_list <- rbind(
 						edge_list,
@@ -588,7 +590,9 @@ for(data_file_to_parse in args$files_to_parse){
 						)
 					)
 				} else { # If the metadata ISN'T in the list that we're supposed to use...
-					print(paste("NOT including metadata '", yaml_title, "'...", sep = ""))
+					if(args$verbose == TRUE){
+						print(paste("NOT including metadata '", yaml_title, "'...", sep = ""))
+					}
 				}
 			}
 		} # End of 'If suppress_file_metadata != TRUE' statement.
