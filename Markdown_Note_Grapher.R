@@ -588,7 +588,7 @@ for(data_file_to_parse in args$files_to_parse){
 						)
 					)
 				} else { # If the metadata ISN'T in the list that we're supposed to use...
-					print(paste("NOT including metadata '", metadata_line, "'...", sep = ""))
+					print(paste("NOT including metadata '", yaml_title, "'...", sep = ""))
 				}
 			}
 		} # End of 'If suppress_file_metadata != TRUE' statement.
