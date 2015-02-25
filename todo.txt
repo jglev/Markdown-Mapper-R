@@ -1,0 +1,2 @@
+* Change prev-line indicator to ^^^ (from L>, which would show up in, e.g., '<XML>'). ALSO, make sure it's not preceeded by a backslash.
+* Add check that --> and <-- and {{ and }} aren't preceeded by backslash.
