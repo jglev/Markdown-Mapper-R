@@ -346,11 +346,11 @@ for(data_file_to_parse in args$files_to_parse){
 	# --> blah blah <-- Nota Bene (a note of extra importance)
 	# {{ blah blah }} Note to self / Original Idea
 	# ^^^ Explicit link to previous line.
-	
-	file.meta_information$contains_nota_bene_note <-	grepl("-->.*<--", file.stripped_text)
-	file.meta_information$contains_note_to_self <-	grepl("\\{\\{.*\\}\\}", file.stripped_text)
-	file.meta_information$contains_explicit_link_to_previous_line <- grepl("(?<!\\\\)\\^\\^\\^", file.stripped_text, fixed = FALSE, perl = TRUE) # See below for an explanation of '(?<!\\\\)' (a 'negative lookbehind' that makes sure that the phrase we're searching for isn't preceeded by a backslash).
-	
+
+	# For the following several lines, see below for an explanation of '(?<!\\\\)' (a 'negative lookbehind' that makes sure that the phrase we're searching for isn't preceeded by a backslash).
+	file.meta_information$contains_nota_bene_note <- grepl("(?<!\\\\)-->.*<--", file.stripped_text, fixed = FALSE, perl = TRUE)
+	file.meta_information$contains_note_to_self <- grepl("(?<!\\\\)\\{\\{.*\\}\\}", file.stripped_text, fixed = FALSE, perl = TRUE)
+	file.meta_information$contains_explicit_link_to_previous_line <- grepl("(?<!\\\\)\\^\\^\\^", file.stripped_text, fixed = FALSE, perl = TRUE) 	
 	#View(file.meta_information)
 	
 	
