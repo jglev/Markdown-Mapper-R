@@ -672,8 +672,10 @@ if(args$disable_quick_view_graph != TRUE){
 	#playwith(plot(graph))
 
 	# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-	message("Press Return To Continue.")
-	user_typed_response <- readLines("stdin", n=1)
+	checkPackage('tcltk')
+	message("Press OK in the window to continue.") # This message will show up in the console.
+	tk_messageBox(type = "ok", message = "Press OK to continue") # This will pop-up a box with an "OK" button to click to continue. This works better than 'readLines("stdin", n=1)', because it doesn't break if you're passing stdin to the script.
+	#user_typed_response <- readLines("stdin", n=1)
 
 } # End of if() statement for plotting quick-view graph.
 
