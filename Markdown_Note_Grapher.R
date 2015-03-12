@@ -128,7 +128,7 @@ parser$add_argument(
 	"files_to_parse", # Because it lacks a '-' flag, this will be interpreted as a positional argument.
 	metavar="File to parse", # What will be displayed in the help documentation.
 	nargs='?', # Gather as many filenames as are listed into a big list, and use the default setting below if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
-	help="A list of plain-text files to parse.",
+	help="A list of plain-text files to parse. Uses stdin if no files are given.",
 	default="stdin" # Default to stdin (i.e., input from a command-line pipe)
 ) 
 
