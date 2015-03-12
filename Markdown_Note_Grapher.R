@@ -346,12 +346,12 @@ for(data_file_to_parse in args$files_to_parse){
 	# Check for the presence of several special character combinations:
 	# --> blah blah <-- Nota Bene (a note of extra importance)
 	# {{ blah blah }} Note to self / Original Idea
-	# L> Explicit link to previous line.
-	
-	file.meta_information$contains_nota_bene_note <-	grepl("-->.*<--", file.stripped_text)
-	file.meta_information$contains_note_to_self <-	grepl("\\{\\{.*\\}\\}", file.stripped_text)
-	file.meta_information$contains_explicit_link_to_previous_line <-	grepl("L>", file.stripped_text)
-	
+	# ^^^ Explicit link to previous line.
+
+	# For the following several lines, see below for an explanation of '(?<!\\\\)' (a 'negative lookbehind' that makes sure that the phrase we're searching for isn't preceeded by a backslash).
+	file.meta_information$contains_nota_bene_note <- grepl("(?<!\\\\)-->.*<--", file.stripped_text, fixed = FALSE, perl = TRUE)
+	file.meta_information$contains_note_to_self <- grepl("(?<!\\\\)\\{\\{.*\\}\\}", file.stripped_text, fixed = FALSE, perl = TRUE)
+	file.meta_information$contains_explicit_link_to_previous_line <- grepl("(?<!\\\\)\\^\\^\\^", file.stripped_text, fixed = FALSE, perl = TRUE) 	
 	#View(file.meta_information)
 	
 	
@@ -578,7 +578,9 @@ for(data_file_to_parse in args$files_to_parse){
 				yaml_title <- metadata_line[[1]]
 
 				if(tolower(yaml_title) %in% tolower(list_of_metadata_lines_to_use)) { # Check whether the piece of metadata that we're currently looking at is in the list of metadata that we're supposed to use (which was set above)...
-					print(paste("Including metadata '", yaml_title, "'...", sep = ""))
+					if(args$verbose == TRUE){
+						print(paste("Including metadata '", yaml_title, "'...", sep = ""))
+					}
 										
 					edge_list <- rbind(
 						edge_list,
@@ -589,7 +591,9 @@ for(data_file_to_parse in args$files_to_parse){
 						)
 					)
 				} else { # If the metadata ISN'T in the list that we're supposed to use...
-					print(paste("NOT including metadata '", yaml_title, "'...", sep = ""))
+					if(args$verbose == TRUE){
+						print(paste("NOT including metadata '", yaml_title, "'...", sep = ""))
+					}
 				}
 			}
 		} # End of 'If suppress_file_metadata != TRUE' statement.
