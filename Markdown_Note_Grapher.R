@@ -188,7 +188,7 @@ parser$add_argument(
 	"--suppress-file-names",
 	action="store_true", 
 	default=FALSE,
-	help="If this flag is set, the program will ignore file names when creating the network graph."
+	help="If this flag is set, the program will ignore file names when creating the network graph. Note that this may cause lines of text that are not linked to any tags, metadata, or other lines (e.g., through bullet lists) to be left out of the graph; normally, those standalone lines are included in the graph by virtue of being connected to the filename."
 )
 
 parser$add_argument(
