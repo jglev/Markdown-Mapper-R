@@ -723,14 +723,14 @@ if(args$quick_view_graph_name != ""){ # If we've been given anything here, we'll
 	)
 	dev.off()
 	
-	message("File saved to '", getwd(), "/", pdf_map_output_filename,"'")
+	message("File saved to '", pdf_map_output_filename,"'")
 } # End of 'if(args$quick_view_graph_name != "")' statement
 
 
 if(args$edge_list_name != ""){ # If we've been given anything here, we'll take it as a filepath, and save the edge list to it.
 	edge_list_filename <- args$edge_list_name
 	write.csv(edge_list, file=edge_list_filename, row.names=FALSE, eol="\n", quote=TRUE)
-	message("File saved to '", getwd(), "/", edge_list_filename,"'")
+	message("File saved to '", edge_list_filename,"'")
 	
 	message("
 If you would like to use this edge list in Visual Understanding Environment (VUE), do the following: 
@@ -760,7 +760,7 @@ if(args$adjacency_matrix_name != ""){ # If we've been given anything here, we'll
 	)
 	adjacency_matrix_filename <- args$adjacency_matrix_name
 	write.csv(adjacency_matrix, file=adjacency_matrix_filename, row.names=TRUE, eol="\n", quote=TRUE)
-	message("File saved to '", getwd(), "/", adjacency_matrix_filename,"'")
+	message("File saved to '", adjacency_matrix_filename,"'")
 
 }
 
