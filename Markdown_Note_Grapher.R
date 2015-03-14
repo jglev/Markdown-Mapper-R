@@ -152,7 +152,7 @@ parser$add_argument(
 ) 
 
 parser$add_argument(
-	"-m",
+	"-l",
 	"--disable-master-tag-list",
 	action="store_true", 
 	default=FALSE,
@@ -176,11 +176,19 @@ parser$add_argument(
 )
 
 parser$add_argument(
-	"-s",
+	"-m",
 	"--suppress-file-metadata",
 	action="store_true", 
 	default=FALSE,
-	help="If this flag is set, the program will ignore metadata included at the top of the file (except for the filename, which is used as a node in the graph even when this flag is set."
+	help="If this flag is set, the program will ignore metadata included at the top of the file (except for the filename, which is used as a node in the graph even when this flag is set, unless the suppress-file-names flag is set)."
+)
+
+parser$add_argument(
+	"-n",
+	"--suppress-file-names",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, the program will ignore file names when creating the network graph."
 )
 
 parser$add_argument(
@@ -595,23 +603,33 @@ for(data_file_to_parse in args$files_to_parse){
 					}
 				}
 			}
+			
 		} # End of 'If suppress_file_metadata != TRUE' statement.
 		else { # If we HAVE been told not to include metadata in the network map...
 			if(args$verbose == TRUE){ 
-				print("NOT including file metadata in network graph (except for filename)...")
+				print("NOT including file metadata in network graph...")
 			}
 		}
-	}
-	
-	edge_list <- rbind(
+	} # End if(length(yaml_metadata_for_file.parsed) > 0) satement
+
+	if(args$suppress_file_names != TRUE){ # If we haven't been told not to pay attention to the filenames...
+		if(args$verbose == TRUE){ 
+			print("Including filenames in network graph...")
+		}
+		edge_list <- rbind(
 		edge_list,
 		data.frame(
 			Source = file.meta_information$hard_wrapped_text,
 			Relationship = "File",
 			Target = file.meta_information$file_name
+			)
 		)
-	)
-
+	} else { # If we ARE supposed to ignore filenames when constructing the graph...
+		if(args$verbose == TRUE){
+			print("NOT including filenames in network graph...")
+		}
+	}
+	
 } # End of 'for(data_file_to_parse in args)' loop.
 
 #View(edge_list)
