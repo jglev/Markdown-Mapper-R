@@ -127,8 +127,9 @@ parser$add_argument("-t", "--tag-delimiter",
 parser$add_argument(
 	"files_to_parse", # Because it lacks a '-' flag, this will be interpreted as a positional argument.
 	metavar="File to parse", # What will be displayed in the help documentation.
-	nargs='+', # Gather as many filenames as are listed into a big list, and create an error message if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
-	help="A list of plain-text files to parse."
+	nargs='*', # Gather as many filenames as are listed into a big list, and use the default setting below if there isn't at least one filename given (see https://docs.python.org/2/library/argparse.html#nargs)
+	help="A list of plain-text files to parse. Uses stdin if no files are given.",
+	default="stdin" # Default to stdin (i.e., input from a command-line pipe)
 ) 
 
 parser$add_argument(
@@ -728,8 +729,10 @@ if(args$disable_quick_view_graph != TRUE){
 	#playwith(plot(graph))
 
 	# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-	message("Press Return To Continue.")
-	user_typed_response <- readLines("stdin", n=1)
+	checkPackage('tcltk')
+	message("Press OK in the window to continue.") # This message will show up in the console.
+	tk_messageBox(type = "ok", message = "Press OK to continue") # This will pop-up a box with an "OK" button to click to continue. This works better than 'readLines("stdin", n=1)', because it doesn't break if you're passing stdin to the script.
+	#user_typed_response <- readLines("stdin", n=1)
 
 } # End of if() statement for plotting quick-view graph.
 
