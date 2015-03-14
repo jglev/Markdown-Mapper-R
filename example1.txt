@@ -1,28 +1,41 @@
 ---
-Title: This is a test title.
-Author: This is a test author.
-Year: 2013
+Title: An example file
+Author: Jacob Levernier
+Year: 2015
+Other: You can add as much metadata as you want!
 ---
 
+This text is written in Markdown style.
 
-This is a test +{1} +{2} +{three}
-Another test +{2} +{three}
-Yet another test +{three}
-A fourth test here +{1}
+* You can have bullet-lists.
+	* There can be sub-items.
+	* This is a second sub-item.
+* In addition to bullet-lists, you can have numbered lists.
 
-* This is line 1 of bullet
-* This is line 2 of bullet.
-	* Sub line 1 of bullet
+1. This is the first item of a numbered list.
+	1. Just as with bullet lists, there can be sub-items.
+1. This is the second item of a numbered list.
 
-* Line after blank line
+There are a few additional features of this text that go beyond what Markdown normally offers.  
+For example, you can add as many +{hashtags} to each line as you like.  
+This line has two +{hashtags}, one of which is embedded in this sentence, and the other of which comes after it: +{example}
 
-	* Sub line after blank line. 
-		{{This is an idea}}
++{Hashtags} can be delimited by any marker you like (e.g., #hashtag, +hashtag, @hashtag, etc.). The default notation, with curly braces, is nice because it allows +{hashtags with spaces}.
 
-		* Two indentations L>
+The intended use for +{Markdown Mapper} is for +{notes} (e.g., class notes, or notes on +{academic articles}).
 
-1. Ordered list 1
-2. -->Ordered list 2.<--
--->Not full nota bene.
+When you're reading +{academic articles}, you may come across a point that you want to remember especially well.  
+-->You can mark a note as being of especial importance by surrounding it with arrows.<--
 
-3. Ordered list 3.
+You might also want to note original ideas that you had while reading. You can note those by marking them like this: {{This is an original idea that I want to remember.}}
+
+{{Original ideas}} can be combined with -->+{notes} of importance<-- as well as +{hashtags}.
+
+Markdown Mapper goes through text files like this line-by-line and reverse-engineers a network map from them.
+
+* For bullet lists, items are linked by parent/child status.
+	* This is a "child" line; the line immediately above, with one less indentation, is the "parent."
+		* You can indent as many times as you want.
+
+You can also mark a line as being linked to the line above it, even if it's not in a list or connected through a hashtag.  
+To do that, just use this symbol anywhere in the line: ^^^ 
