@@ -8,7 +8,7 @@
 ##############################
 
 
-# NOTE WELL: Although this script gives limitd information on the tags ('+tag') used in files passed to it, I recommend this bash function for getting tag counts:
+# NOTE WELL: Although this script gives limited information on the tags ('+tag') used in files passed to it, I recommend this bash function for getting tag counts:
 
 # function search-file-for-tags() { # This lets you search a file to see all unique tags (starting, e.g., with '@' or '+') in a given file.
 # 	# grep -Po "$1\w*" $2 | sort | uniq -c | sort -r # $1 here is the tag leader (e.g., \+ or \@); $2 is the filename.
@@ -188,7 +188,15 @@ parser$add_argument(
 	"--suppress-file-names",
 	action="store_true", 
 	default=FALSE,
-	help="If this flag is set, the program will ignore file names when creating the network graph. Note that this may cause lines of text that are not linked to any tags, metadata, or other lines (e.g., through bullet lists) to be left out of the graph; normally, those standalone lines are included in the graph by virtue of being connected to the filename."
+	help="If this flag is set, the program will ignore file names when creating the network graph."
+)
+
+parser$add_argument(
+	"-x",
+	"--exclude-standalone-nodes",
+	action="store_true", 
+	default=FALSE,
+	help="If this flag is set, the program will leave text lines that are not connected to any tags, metadata, or other lines (e.g., through bullet lists) out of the network graph."
 )
 
 parser$add_argument(
@@ -414,11 +422,34 @@ for(data_file_to_parse in args$files_to_parse){
 	#rm(edge_list)
 	#rm(binary_association_matrix)
 	
+	if(args$exclude_standalone_nodes != TRUE){ # If we haven't been told not to create dummy nodes for each line of text (see below for a fuller explanation -- this code is here just so that this message doesn't get printed for each line of text)...
+		if(args$verbose == TRUE){ 
+			print("Including a dummy edge for each text line in the network graph (in which each text line is linked to itself), in order to ensure that all text lines, even those that are not connected to anything else, are included in the network graph)...")
+		}	
+	} else {
+		if(args$verbose == TRUE){ 
+			print("NOT including a dummy edge for each text line in the network graph...")
+		}	
+	}
+	
 	# Loop through the text and make an edge list from it:
 	for(line_number in 1:length(file.hard_wrapped_text)){
 		# print(paste("Processing line number", line_number, "...")) # Good for debugging.
 		
 		text_line <- file.hard_wrapped_text[line_number]
+		
+		
+		#######################################
+		# By default (if we haven't been told not to), include a dummy edge list entry that links the text node to itself. This ensures that all text nodes, even those without any links (to tags, metadata, filenames, or other lines) are included in the graph.
+		#######################################
+		
+		if(args$exclude_standalone_nodes != TRUE){ # If we haven't been told not to do this...
+			edge_list <- rbind(edge_list, data.frame(
+				Source = text_line,
+				Relationship = "",
+				Target = text_line
+			))
+		}
 		
 		#######################################
 		# If the line was indented, find the next-highest line that's one tab less-indented.
@@ -439,6 +470,7 @@ for(data_file_to_parse in args$files_to_parse){
 				))
 			}
 		}
+		
 		
 		#######################################
 		# If line contains an explicit character combination link to the previous line, add that link to the edge list
@@ -674,10 +706,12 @@ if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
 		shape="circle",
 		border.width=.5,
 		labels=TRUE,
-		DoNotPlot=TRUE
+		DoNotPlot=TRUE,
+		edge.labels=as.list(as.character(edge_list[["Relationship"]])),
+		edge.label.cex=.3
 	)
 }
-
+message(as.list(as.character(edge_list[["Relationship"]])))
 if(args$disable_quick_view_graph != TRUE){
 	message("Generating quick-view network graph...")
 	
