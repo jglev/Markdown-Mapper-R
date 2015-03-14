@@ -188,15 +188,15 @@ parser$add_argument(
 	"--suppress-file-names",
 	action="store_true", 
 	default=FALSE,
-	help="If this flag is set, the program will ignore file names when creating the network graph."
+	help="If this flag is set, the program will ignore file names when creating the network graph. Note that this may cause lines of text that are not linked to any tags, metadata, or other lines (e.g., through bullet lists) to be left out of the graph; normally, those standalone lines are included in the graph by virtue of being connected to the filename. This can be corrected with the link-edges-to-themselves flag."
 )
 
 parser$add_argument(
-	"-x",
-	"--exclude-standalone-nodes",
+	"-s",
+	"--link-edges-to-themselves",
 	action="store_true", 
 	default=FALSE,
-	help="If this flag is set, the program will leave text lines that are not connected to any tags, metadata, or other lines (e.g., through bullet lists) out of the network graph."
+	help="If this flag is set, a dummy edge for each text line in the network graph will be set, such that each text line is linked to itself. This ensures that all text lines, even those that are not connected to anything else, are included in the network graph. However, in some graphing programs, it also means that a looped edge will be shown, connecting each edge to itself. Because this look can be undesirable, this flag is not set by default."
 )
 
 parser$add_argument(
@@ -422,13 +422,13 @@ for(data_file_to_parse in args$files_to_parse){
 	#rm(edge_list)
 	#rm(binary_association_matrix)
 	
-	if(args$exclude_standalone_nodes != TRUE){ # If we haven't been told not to create dummy nodes for each line of text (see below for a fuller explanation -- this code is here just so that this message doesn't get printed for each line of text)...
+	if(args$link_edges_to_themselves == TRUE){ # If we've been told not to create dummy nodes for each line of text (see below for a fuller explanation -- this code is here just so that this message doesn't get printed for each line of text)...
 		if(args$verbose == TRUE){ 
 			print("Including a dummy edge for each text line in the network graph (in which each text line is linked to itself), in order to ensure that all text lines, even those that are not connected to anything else, are included in the network graph)...")
 		}	
 	} else {
 		if(args$verbose == TRUE){ 
-			print("NOT including a dummy edge for each text line in the network graph...")
+			print("NOT including a dummy edge for each text line in the network graph. This can result in edges that are not connected to anything else (tags, metadata, filenames, etc.) to be left out of the graph...")
 		}	
 	}
 	
@@ -440,10 +440,10 @@ for(data_file_to_parse in args$files_to_parse){
 		
 		
 		#######################################
-		# By default (if we haven't been told not to), include a dummy edge list entry that links the text node to itself. This ensures that all text nodes, even those without any links (to tags, metadata, filenames, or other lines) are included in the graph.
+		# If we've been told to, include a dummy edge list entry that links the text node to itself. This ensures that all text nodes, even those without any links (to tags, metadata, filenames, or other lines) are included in the graph.
 		#######################################
 		
-		if(args$exclude_standalone_nodes != TRUE){ # If we haven't been told not to do this...
+		if(args$link_edges_to_themselves == TRUE){ # If we've been told to do this...
 			edge_list <- rbind(edge_list, data.frame(
 				Source = text_line,
 				Relationship = "",
@@ -711,7 +711,7 @@ if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
 		edge.label.cex=.3
 	)
 }
-message(as.list(as.character(edge_list[["Relationship"]])))
+
 if(args$disable_quick_view_graph != TRUE){
 	message("Generating quick-view network graph...")
 	
