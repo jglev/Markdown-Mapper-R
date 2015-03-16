@@ -97,7 +97,13 @@ parser <- ArgumentParser(
 	prog='Markdown Network Grapher',
 	formatter_class = 'argparse.RawTextHelpFormatter', # This allows for linebreaks in the description below for the auto-generated help documentation. See http://quabr.com/27150625/r-argparse-line-breaks-in-description, which notes that line breaks must be escaped.
 	description='An edge-list and adjacency-matrix creator for notes made in markdown.\\n\\n\\
-	Explanation: blah blah blah'
+	Explanation: Take plain-text notes, either from one or more files or from stdin, and turn them into a network graph. Each line/paragraph of text is treated as a node in the network. Indentations (either with tabs or four spaces) in Markdown-style bullet (*) and numbered (1.) lists are used to determine relationships between lines, as are several special character combinations:\\n\\n\\
+		--> Notes of extra importance <--\\n\\
+		{{ Note to self / Original Idea }}\\n\\
+		^^^ Explicit link to previous line.\\n\\n\\
+		You can also tag (e.g., hashtag) any words or phrases. The default tag delimiters are +{tag} and @{tag}. Tags can contain spaces, +{like this}.\\n\\
+		'
+	
 )
 
 default_tag_delimiter.string <- '(\\+|\\@)\\{.*?\\}'
