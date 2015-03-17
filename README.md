@@ -8,10 +8,10 @@ Distributed under the GPLv2 License (If you would like to redistribute the code 
 
 ## Requirements
 
-1. Download and install [R](http://cran.cnr.berkeley.edu/ "R Download page").
+1. Download and install [R](http://cran.cnr.berkeley.edu/ "R Download page"). Due to library dependencies, you'll need R version ≥ 3.1.0.
 1. Download and install [Python v2.7+](https://www.python.org/ "Python") (according to the [R `argparse` GitHub page](https://github.com/trevorld/argparse "GitHub: argparse for R"), Python v3.2+ does work, as well), including the `argparse` and `json` packages (which I think come installed by default in many Python distributions). Note that Python may already be installed on your system, if you use Linux or Mac OSX.
 1. **Download the Markdown Mapper script, "Markdown_Note_Grapher.R," from this repository.**
-1. Open a terminal. Run the script with `Rscript /path/to/Markdown_Note_Grapher.R path/to/the_text_file_you_want_to_map.txt` or `R CMD BATCH /path/to/Markdown_Note_Grapher.R path/to/the_text_file_you_want_to_map.txt`. You could also create a shortcut to this command using, e.g., a `bash` ['Alias' file](https://en.wikipedia.org/wiki/Alias_%28Unix_shell%29 "Bash Alias explanation"). I added a line to my `.alias` file so that I can summon Markdown Mapper with the command `concept-map`.
+1. Open a terminal. Run the script with `Rscript /path/to/Markdown_Note_Grapher.R path/to/the_text_file_you_want_to_map.txt`. You could also create a shortcut to this command using, e.g., a `bash` ['Alias' file](https://en.wikipedia.org/wiki/Alias_%28Unix_shell%29 "Bash Alias explanation"). I added a line to my `.alias` file so that I can summon Markdown Mapper with the command `concept-map`.
 
 The first time you run the script, it will likely install several R packages. Some of these can take quite a while to install. After that first time, however, the script runs much more quickly.
 
