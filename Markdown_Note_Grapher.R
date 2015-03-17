@@ -1,5 +1,6 @@
 ##############################
-# NETWORK GRAPH FACILITATOR FOR GTD-STYLE (GETTING-THINGS-DONE-STYLE) NOTES
+# MARKDOWN MAPPER
+# Generate concept maps from plaintext notes.
 # Jacob Levernier
 # AdUnumDatum.org
 # January 2015
@@ -8,7 +9,7 @@
 ##############################
 
 
-# NOTE WELL: Although this script gives limited information on the tags ('+tag') used in files passed to it, I recommend this bash function for getting tag counts:
+# NOTE WELL: Although this script gives limited information on the tags ('+tag') used in files passed to it, I alternatively recommend this bash function for getting tag counts:
 
 # function search-file-for-tags() { # This lets you search a file to see all unique tags (starting, e.g., with '@' or '+') in a given file.
 # 	# grep -Po "$1\w*" $2 | sort | uniq -c | sort -r # $1 here is the tag leader (e.g., \+ or \@); $2 is the filename.
