@@ -2,13 +2,13 @@
 
 Generate concept maps from plaintext notes.
 
-A full explanation is available at [AD UNUM DATUM](http://adunumdatum.org/introducing-markdown-mapper.html "Ad Unum Datum: 'Introducing Markdown Mapper').
+A full explanation is available at [AD UNUM DATUM](http://adunumdatum.org/introducing-markdown-mapper.html "Ad Unum Datum: 'Introducing Markdown Mapper'").
 
 Distributed under the GPLv2 License (If you would like to redistribute the code under other license terms, please contact the author).
 
 ## Requirements
 
-1. Download and install [R](http://cran.cnr.berkeley.edu/ "R Download page")
+1. Download and install [R](http://cran.cnr.berkeley.edu/ "R Download page").
 1. Download and install [Python v2.7+](https://www.python.org/ "Python"), including the `argparse` and `json` packages (which I think come installed by default in many Python distributions). (Note that Python may already be installed on your system, if you use Linux or Mac OSX).
 1. **Download the Markdown Mapper script, "Markdown_Note_Grapher.R," from this repository.**
 1. Open a terminal. Run the script with `Rscript /path/to/Markdown_Note_Grapher.R path/to/the_text_file_you_want_to_map.txt` or `R CMD BATCH /path/to/Markdown_Note_Grapher.R path/to/the_text_file_you_want_to_map.txt`. You could also create a shortcut to this command using, e.g., a `bash` ['Alias' file](https://en.wikipedia.org/wiki/Alias_%28Unix_shell%29 "Bash Alias explanation"). I added a line to my `.alias` file so that I can summon Markdown Mapper with the command `concept-map`.
