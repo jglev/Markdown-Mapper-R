@@ -26,7 +26,7 @@ for(marker in vector_of_singleline_markers){
 			print(i)
 			# First, replace the first line of text with all of the combined text. Later, we'll remove the other original lines (after we've done this for all pairs of matching lines -- so that index numbers aren't messed up as we go):
 			file.text2[matchingLines[1*i]] <- paste(file.text2[matchingLines[1*i]:matchingLines[2*i]], collapse = "\n") # Combine everything between the two line numbers.
-			linesToRemove <- (matchingLines[1*i+1]+1):matchingLines[2*i]
+			linesToRemove <- (matchingLines[2*i-1]+1):matchingLines[2*i]
 			print("Lines to remove are")
 			print(linesToRemove)
 			
