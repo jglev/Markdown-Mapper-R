@@ -1,0 +1,18 @@
+This is some test text.
+<code>
+	Here is some code.
+	And some more.
+</code>
+Not code
+```
+More code
+<blockquote>
+sdkjlfjklsd
+</blockquote>
+```
+More not code.
+And even more not code.
+	<blockquote>
+	Tester
+More test.
+</blockquote>
