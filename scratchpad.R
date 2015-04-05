@@ -22,17 +22,23 @@ for(marker in vector_of_singleline_markers){
 		numberOfMatchingPairsOfLines <- floor(length(matchingLines)/2)
 		print(paste("There are", numberOfMatchingPairsOfLines, "pairs of lines for this search parameter."))
 		# Combine pairs of lines, going through one pair at a time:
+		
+		linesToRemove <- NULL # Wipe this from the last iteration. We'll fill it in again below.
+		
 		for(i in 1:numberOfMatchingPairsOfLines){
 			print(i)
 			# First, replace the first line of text with all of the combined text. Later, we'll remove the other original lines (after we've done this for all pairs of matching lines -- so that index numbers aren't messed up as we go):
-			file.text2[matchingLines[1*i]] <- paste(file.text2[matchingLines[1*i]:matchingLines[2*i]], collapse = "\n") # Combine everything between the two line numbers.
-			linesToRemove <- (matchingLines[2*i-1]+1):matchingLines[2*i]
+			file.text2[matchingLines[2*i-1]] <- paste(file.text2[matchingLines[2*i-1]:matchingLines[2*i]], collapse = "\n") # Combine everything between the two line numbers.
+			linesToRemove <- c(linesToRemove,(matchingLines[2*i-1]+1):matchingLines[2*i])
 			print("Lines to remove are")
 			print(linesToRemove)
-			
-			# Remove the lines.
-			file.text2 <- file.text2[-linesToRemove]
 		}
+		
+		# Remove the lines.
+		file.text2 <- file.text2[-linesToRemove]
+		
+		print("File.text2 is now")
+		print(file.text2)
 	}
 }
 
