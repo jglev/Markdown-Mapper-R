@@ -3,45 +3,67 @@ file.text <- scan("~/Desktop/Note-Taking_Network_Grapher/example2.txt", what = "
 file.text
 file.text[1]
 #do.call("rbind", file.text[28:29])
-paste(file.text[28:29], collapse = "\n")
+#paste(file.text[1:3], collapse = "\n")
 
 #file_singleline_marker_locations <- grep('(```.*```|<code>.*</code>)', file.text, perl=TRUE)[1:2]
 
-vector_of_singleline_markers <- c("</?code>", "</?blockquote>","```")
+vector_of_singleline_start_markers <- c("<code>", "<blockquote>","```")
+
+vector_of_singleline_end_markers <- c("</code>", "</blockquote>","```")
+
+if(length(vector_of_singleline_start_markers) != length(vector_of_singleline_start_markers)){print("Not the same length")}
+
 
 # Create a blank variable, which we'll fill in below:
 linesToRemove <- NULL
 file.text2 <- file.text
 
-for(marker in vector_of_singleline_markers){
-	print(paste("Marker is",marker))
-	matchingLines <- grep(marker, file.text2, perl=TRUE)
+# We already know that both vectors are the same length, so we can just use the length of one of them here in calculating an index over which to iterate:
+for(markerNumber in 1:length(vector_of_singleline_start_markers)){
+	print(paste("Marker is",vector_of_singleline_start_markers[markerNumber],vector_of_singleline_end_markers[markerNumber]))
+	matchingStartLines <- grep(vector_of_singleline_start_markers[markerNumber], file.text2, perl=TRUE)
+	matchingEndLines <- grep(vector_of_singleline_end_markers[markerNumber], file.text2, perl=TRUE)
 	print("Matching lines are")
-	print(matchingLines)
-	if(length(matchingLines) > 1){ # If we have more than 1 lines that match the pattern
-		numberOfMatchingPairsOfLines <- floor(length(matchingLines)/2)
-		print(paste("There are", numberOfMatchingPairsOfLines, "pairs of lines for this search parameter."))
-		# Combine pairs of lines, going through one pair at a time:
+	print(matchingStartLines)
+	print(matchingEndLines)
+	
+	if(length(matchingStartLines) != length(matchingEndLines)){
+		print("Start and end lines aren't matched.")	
+	}else{
 		
-		linesToRemove <- NULL # Wipe this from the last iteration. We'll fill it in again below.
+		minLengthOfMatchingLines <- min(length(matchingStartLines), length(matchingEndLines))
 		
-		for(i in 1:numberOfMatchingPairsOfLines){
-			print(i)
-			# First, replace the first line of text with all of the combined text. Later, we'll remove the other original lines (after we've done this for all pairs of matching lines -- so that index numbers aren't messed up as we go):
-			file.text2[matchingLines[2*i-1]] <- paste(file.text2[matchingLines[2*i-1]:matchingLines[2*i]], collapse = "\n") # Combine everything between the two line numbers.
-			linesToRemove <- c(linesToRemove,(matchingLines[2*i-1]+1):matchingLines[2*i])
-			print("Lines to remove are")
-			print(linesToRemove)
+		if(length(minLengthOfMatchingLines) >= 1 ){ # If we have at least 1 line pair that match the pattern
+			#numberOfMatchingPairsOfLines <- floor(length(matchingLines)/2)
+			#print(paste("There are", numberOfMatchingPairsOfLines, "pairs of lines for this search parameter."))
+			# Combine pairs of lines, going through one pair at a time:
+			linesToRemove <- NULL # Wipe this from the last iteration. We'll fill it in again below.
+			
+			for(i in 1:minLengthOfMatchingLines){
+				print(i)
+				# First, replace the first line of text with all of the combined text. Later, we'll remove the other original lines (after we've done this for all pairs of matching lines -- so that index numbers aren't messed up as we go):
+				
+				# Make sure that the markers aren't on the same line -- if they are, we don't need to do anything further with them. Also, if the end line is on a higher line than the start line, there's probably something wrong, so we won't do anything with it, ether:
+				if(matchingStartLines[i] == matchingStartLines[i] || matchingStartLines[i] > matchingEndLines[i]){
+					print(paste("Start (", matchingStartLines[i], ") and end (", matchingEndLines[i], ") lines do not warrant further action. Passing over them..."), sep = "")
+				} else { # If we SHOULD do something about the lines...
+					file.text2[matchingStartLines[i]] <- paste(file.text2[matchingStartLines[i]:matchingEndLines[i]], collapse = "\n") # Combine everything between the two line numbers.
+					linesToRemove <- c(linesToRemove,(matchingStartLines[i]+1):matchingEndLines[i])
+					print("Lines to remove are")
+					print(linesToRemove)
+				}
+			}
+			
+			# Remove the lines, if there are any to remove:
+			if(length(linesToRemove > 0)){
+				file.text2 <- file.text2[-linesToRemove]
+			}
+			
+			print("File.text2 is now")
+			print(file.text2)
 		}
-		
-		# Remove the lines.
-		file.text2 <- file.text2[-linesToRemove]
-		
-		print("File.text2 is now")
-		print(file.text2)
 	}
 }
-
 # Now that we've looped through consolidating text, remove the original subsequent lines of text:
 
 # First, consolidate the pairs of line numbers, such that if there are line number pairs that fit within other pairs, we just end up using the first set of pairs.
@@ -57,11 +79,4 @@ file.text2
 #listOfLineNumbers
 
 #file.text[listOfLineNumbers]
-
-# Conceptually following https://stat.ethz.ch/pipermail/r-help/2012-December/342539.html , which states:
-# "findInterval returns a numeric vector indicating which bin(s) the argument vector element(s) fall(s) into. Items below the lower bound get a zero which means if the result is used as an index the there will be no item chosen for that value. Items above the maximal boundary get a value of n+1 where n is the number of bins."
-col1 <- c(1,4,7,8,13)
-col2 <- c(2,6,10,9,16)
-
-findInterval(col2,col1,col2)
 
