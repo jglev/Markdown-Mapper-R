@@ -4,6 +4,10 @@ This is some test text.
 	And some more.
 </code>
 Not code
+
+```
+This is a test```
+
 ```
 More code
 <blockquote>

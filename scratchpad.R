@@ -23,6 +23,14 @@ for(markerNumber in 1:length(vector_of_singleline_start_markers)){
 	print(paste("Marker is",vector_of_singleline_start_markers[markerNumber],vector_of_singleline_end_markers[markerNumber]))
 	matchingStartLines <- grep(vector_of_singleline_start_markers[markerNumber], file.text2, perl=TRUE)
 	matchingEndLines <- grep(vector_of_singleline_end_markers[markerNumber], file.text2, perl=TRUE)
+	
+	# If the start and end markers are identical, the vectors of start- and end-lines will also be identical, which isn't right. In that case, we'll reconstruct the vectors by alternating between start and close.
+	# NOTE WELL: This assumes that There won't be any lines that actually do have the multiline markers on a single line (e.g., '```Test```').
+	if(vector_of_singleline_start_markers[markerNumber] == vector_of_singleline_end_markers[markerNumber]){
+		matchingStartLines <- matchingStartLines[seq(1,length(matchingEndLines),2)] # Get the odd elements.
+		matchingEndLines <- matchingEndLines[seq(2,length(matchingEndLines),2)] # Get the even elements.
+	}
+	
 	print("Matching lines are")
 	print(matchingStartLines)
 	print(matchingEndLines)
@@ -44,7 +52,7 @@ for(markerNumber in 1:length(vector_of_singleline_start_markers)){
 				# First, replace the first line of text with all of the combined text. Later, we'll remove the other original lines (after we've done this for all pairs of matching lines -- so that index numbers aren't messed up as we go):
 				
 				# Make sure that the markers aren't on the same line -- if they are, we don't need to do anything further with them. Also, if the end line is on a higher line than the start line, there's probably something wrong, so we won't do anything with it, ether:
-				if(matchingStartLines[i] == matchingStartLines[i] || matchingStartLines[i] > matchingEndLines[i]){
+				if(matchingStartLines[i] == matchingEndLines[i] || matchingStartLines[i] > matchingEndLines[i]){
 					print(paste("Start (", matchingStartLines[i], ") and end (", matchingEndLines[i], ") lines do not warrant further action. Passing over them..."), sep = "")
 				} else { # If we SHOULD do something about the lines...
 					file.text2[matchingStartLines[i]] <- paste(file.text2[matchingStartLines[i]:matchingEndLines[i]], collapse = "\n") # Combine everything between the two line numbers.
