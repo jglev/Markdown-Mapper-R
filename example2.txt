@@ -5,7 +5,10 @@ This is some test text.
 </code>
 Not code
 
-```This is a test```
+```This is a test``` ```More code
+
+	And some more.
+```
 
 ```
 More code
@@ -15,7 +18,8 @@ sdkjlfjklsd
 ```
 More not code.
 And even more not code.
+```
 	<blockquote>
 	Tester
 More test.
-</blockquote>
+</blockquote>```
