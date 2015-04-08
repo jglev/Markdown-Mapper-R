@@ -353,11 +353,13 @@ for(data_file_to_parse in args$files_to_parse){
 			matchingEndLines <- which(sapply(regmatches(file.text, gregexpr(args$single_line_closing_marker[markerNumber], file.text, fixed = TRUE)), length) %% 2 == 1)
 			
 			# If the start and end markers are identical, the vectors of start- and end-lines will also be identical, which isn't right. In that case, we'll reconstruct the vectors by alternating between start and close.
-			if(args$single_line_beginning_marker[markerNumber] == args$single_line_closing_marker[markerNumber]){
+			if(args$single_line_beginning_marker[markerNumber] == args$single_line_closing_marker[markerNumber] && 
+				length(matchingStartLines) >= 2 && length(matchingEndLines) >= 2
+			){
 				#sapply(regmatches(file.text, gregexpr('```',file.text)), length)
 				# Check if number is odd: `if (x %% 2) { # odd number }`
-				matchingStartLines <- matchingStartLines[seq(1,length(matchingEndLines),2)] # Get the odd elements.
-				matchingEndLines <- matchingEndLines[seq(2,length(matchingEndLines),2)] # Get the even elements.
+				matchingStartLines <- matchingStartLines[seq(1,ifelse(length(matchingEndLines) >= 1, length(matchingEndLines), 1),2)] # Get the odd elements.
+				matchingEndLines <- matchingEndLines[seq(2,ifelse(length(matchingStartLines) >= 2, length(matchingStartLines), 2),2)] # Get the even elements.
 			}
 			
 			if(args$verbose == TRUE){
