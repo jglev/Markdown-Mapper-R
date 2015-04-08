@@ -248,7 +248,7 @@ parser$add_argument(
 	metavar="Phrase that marks the beginning of a block of text", # What will be displayed in the help documentation.
 	action="append", # This argument can be specified multiple times, and will be saved into a list.
 	type="character", 
-	help="To be used to create a dictionary for marking blocks of text/code/etc. (e.g., '<code> ... </code>', '<blockquote> ... </blockquote>', '``` ... ```'). Needs to be paired with '--single-line-closing-marker'. Can be used multiple times for multiple markers (in that case, the elements in the 'starting marker' and 'closing marker' lists are matched up in the order they were created. NOTE: This flag DOES NOT change the original input file at all."
+	help="To be used to create a dictionary for marking blocks of text/code/etc. (e.g., '<code> ... </code>', '<blockquote> ... </blockquote>'). Needs to be paired with '--single-line-closing-marker'. Can be used multiple times for multiple markers (in that case, the elements in the 'starting marker' and 'closing marker' lists are matched up in the order they were created. NOTE: This flag DOES NOT change the original input file at all."
 ) 
 
 parser$add_argument(
@@ -257,7 +257,7 @@ parser$add_argument(
 	metavar="Phrase that marks the end of a block of text", # What will be displayed in the help documentation.
 	action="append", # This argument can be specified multiple times, and will be saved into a list.
 	type="character", 
-	help="To be used to create a dictionary for marking blocks of text/code/etc. (e.g., '<code> ... </code>', '<blockquote> ... </blockquote>', '``` ... ```'). Needs to be paired with '--single-line-beginning-marker'. Can be used multiple times for multiple markers (in that case, the elements in the 'starting marker' and 'closing marker' lists are matched up in the order they were created. NOTE: This flag DOES NOT change the original input file at all."
+	help="To be used to create a dictionary for marking blocks of text/code/etc. (e.g., '<code> ... </code>', '<blockquote> ... </blockquote>'). Needs to be paired with '--single-line-beginning-marker'. Can be used multiple times for multiple markers (in that case, the elements in the 'starting marker' and 'closing marker' lists are matched up in the order they were created. NOTE: This flag DOES NOT change the original input file at all."
 ) 
 
 
@@ -332,28 +332,88 @@ for(data_file_to_parse in args$files_to_parse){
 			file.text <- gsub(dictionary_column_for_from.sanitized, full_dictionary_to_use[row_number, "To"], file.text, ignore.case = TRUE, fixed = FALSE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
 		}
 	}
-
-#########################################
-# TO EDIT
-#########################################
-
+	
 	# If we were given any singleline markers to use, change the the file text to reflect that, by placing lines surrounded by those markers into single lines (This works because the file(s) have been read in with each line counted as a list element. So we're going to paste together list elements as necessary, then delete vestigial lines):
 	if(length(args$single_line_beginning_marker) > 0) { # We already checked above that the single_line_beginning_marker and single_line_closing_marker objects are the same length, so no need to check again here.
-
-
-# I STOPPED HERE
 		
 		if(args$verbose == TRUE){ # If verbose is set to TRUE, print the list that we're using for the user.
 			message("Processing the following list of text block markers:")
 			cat(paste("'", args$single_line_beginning_marker, "'", "\t...\t", "'", args$single_line_closing_marker, "'", sep = "", collapse = "\n"), "\n\n") # I'm using cat() rather than paste() here so that newline characters (\n) are respected. Within the paste() function, '\t' is a tab character.
 		}
 		
+		# We already know that both vectors are the same length, so we can just use the length of one of them here in calculating an index over which to iterate:
+		for(markerNumber in 1:length(args$single_line_beginning_marker)){
+			if(args$verbose == TRUE){
+				print(paste("Processing marker '",args$single_line_beginning_marker[markerNumber], "' ... '",args$single_line_closing_marker[markerNumber],"'...", sep = ""))
+			}
 
+			# Only match lines that have an odd number of matches for each vector. This way, even if the start and end markers are identical, we control for there being a start and end marker on the same line. So we only want lines where there's a single start/end marker, or both a start and end marker, followed by another start marker, etc.:
+			matchingStartLines <- which(sapply(regmatches(file.text, gregexpr(args$single_line_beginning_marker[markerNumber], file.text, fixed = TRUE)), length) %% 2 == 1) # % is modulo (i.e., remainder)
+			#grep(args$single_line_beginning_marker[markerNumber], file.text, perl=TRUE)
+			matchingEndLines <- which(sapply(regmatches(file.text, gregexpr(args$single_line_closing_marker[markerNumber], file.text, fixed = TRUE)), length) %% 2 == 1)
+			
+			# If the start and end markers are identical, the vectors of start- and end-lines will also be identical, which isn't right. In that case, we'll reconstruct the vectors by alternating between start and close.
+			if(args$single_line_beginning_marker[markerNumber] == args$single_line_closing_marker[markerNumber]){
+				#sapply(regmatches(file.text, gregexpr('```',file.text)), length)
+				# Check if number is odd: `if (x %% 2) { # odd number }`
+				matchingStartLines <- matchingStartLines[seq(1,length(matchingEndLines),2)] # Get the odd elements.
+				matchingEndLines <- matchingEndLines[seq(2,length(matchingEndLines),2)] # Get the even elements.
+			}
+			
+			if(args$verbose == TRUE){
+				print("The lines matching the Start marker are as follows:")
+				print(matchingStartLines)
+				print("The lines matching the Closing marker are as follows:")
+				print(matchingEndLines)
+			}
+			
+			#if(length(matchingStartLines) != length(matchingEndLines)){
+			#	print("Start and end lines aren't matched.")	
+			#}else{
+				
+				minLengthOfMatchingLines <- min(length(matchingStartLines), length(matchingEndLines))
+				
+				if(length(minLengthOfMatchingLines) >= 1 ){ # If we have at least 1 line pair that match the pattern
+					# Combine pairs of lines, going through one pair at a time:
+					linesToRemove <- NULL # Wipe this from the last iteration. We'll fill it in again below.
+					
+					for(i in 1:minLengthOfMatchingLines){
+						# First, replace the first line of text with all of the combined text. Later, we'll remove the other original lines (after we've done this for all pairs of matching lines -- so that index numbers aren't messed up as we go):
+						
+						# Make sure that the markers aren't on the same line -- if they are, we don't need to do anything further with them. Also, if the end line is on a higher line than the start line, there's probably something wrong, so we won't do anything with it, ether:
+						if(matchingStartLines[i] == matchingEndLines[i] || matchingStartLines[i] > matchingEndLines[i]){
+							if(args$verbose == TRUE){
+								print(paste("Start (", matchingStartLines[i], ") and end (", matchingEndLines[i], ") lines do not warrant further action. Passing over them..."), sep = "")
+							}
+						} else { # If we SHOULD do something about the lines...
+							
+							# Now that we've looped through consolidating text, remove the original subsequent lines of text:
+							
+							file.text[matchingStartLines[i]] <- paste(file.text[matchingStartLines[i]:matchingEndLines[i]], collapse = "\n") # Combine everything between the two line numbers.
+							linesToRemove <- c(linesToRemove,(matchingStartLines[i]+1):matchingEndLines[i])
+							if(args$verbose == TRUE){
+								print("Removing the following now-vestigial lines:")
+								print(linesToRemove)
+							}
+						}
+					}
+					
+					# Remove the lines, if there are any to remove:
+					if(length(linesToRemove > 0)){
+						file.text <- file.text[-linesToRemove]
+					}
+					
+					# The lines below are very nice for debugging, but would probably be overkill in normal output, even if the user did ask for verbosity. Thus, I'm commenting them out for now.
+					#if(args$verbose == TRUE){	
+					#	print("The current processed state of the input text is now as follows:e file is now as follows:")
+					#	print(file.text)
+					#}
+				}
+			#} # End of "If length of start and end lines is equal" block.
+		}
 	}
-
-
-
 	
+
 	# Create a blank list to fill in:
 	file.meta_information <- list()
 	
