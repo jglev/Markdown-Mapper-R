@@ -274,8 +274,8 @@ if(length(args$change_phrase_from) != length(args$change_phrase_into)){ # If we'
 		stop("ERROR: The '--change-phrase-from' and '--change-phrase-into' lists don't match up -- they are not the same length (this could be because you forgot to pair them up for every phrase you want to replace, if it's more than 1). Exiting so that you can figure out what went wrong.")
 }
 
-if(length(args$single-line-beginning-marker) != length(args$single-line-closing-marker)){ # If we've been given a dictionary of replacement terms to use, but the 'from' and 'to' columns don't match up, throw an error:
-			stop("ERROR: The '--single-line-beginning-marker' and '--single-line-closing-marker' lists don't match up -- they are not the same length (this could be because you forgot to pair them up for every phrase you want to replace, if it's more than 1). Exiting so that you can figure out what went wrong.")
+if(length(args$single_line_beginning_marker) != length(args$single_line_closing_marker)){ # If we've been given a dictionary of replacement terms to use, but the 'from' and 'to' columns don't match up, throw an error:
+		stop("ERROR: The '--single-line-beginning-marker' and '--single-line-closing-marker' lists don't match up -- they are not the same length (this could be because you forgot to pair them up for every phrase you want to replace, if it's more than 1). Exiting so that you can figure out what went wrong.")
 }
 
 
@@ -324,7 +324,7 @@ for(data_file_to_parse in args$files_to_parse){
 			cat(paste("'", full_dictionary_to_use$From, "'", "\t=>\t", "'", full_dictionary_to_use$To, "'", sep = "", collapse = "\n"), "\n\n") # I'm using cat() rather than paste() here so that newline characters (\n) are respected. Within the paste() function, '\t' is a tab character.
 		}
 		
-		# For each row of the dictionar, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column). 
+		# For each row of the dictionary, substitute the From column (taking it literally (i.e., not as a regular expression) for the To column). 
 		for(row_number in 1:nrow(full_dictionary_to_use)){
 
 			dictionary_column_for_from.sanitized <- deactivate_regular_expression_special_characters(full_dictionary_to_use[row_number, "From"])
@@ -332,6 +332,27 @@ for(data_file_to_parse in args$files_to_parse){
 			file.text <- gsub(dictionary_column_for_from.sanitized, full_dictionary_to_use[row_number, "To"], file.text, ignore.case = TRUE, fixed = FALSE) # 'fixed = TRUE' tells gsub not to interpret the search as a Regular Expression.
 		}
 	}
+
+#########################################
+# TO EDIT
+#########################################
+
+	# If we were given any singleline markers to use, change the the file text to reflect that, by placing lines surrounded by those markers into single lines (This works because the file(s) have been read in with each line counted as a list element. So we're going to paste together list elements as necessary, then delete vestigial lines):
+	if(length(args$single_line_beginning_marker) > 0) { # We already checked above that the single_line_beginning_marker and single_line_closing_marker objects are the same length, so no need to check again here.
+
+
+# I STOPPED HERE
+		
+		if(args$verbose == TRUE){ # If verbose is set to TRUE, print the list that we're using for the user.
+			message("Processing the following list of text block markers:")
+			cat(paste("'", args$single_line_beginning_marker, "'", "\t...\t", "'", args$single_line_closing_marker, "'", sep = "", collapse = "\n"), "\n\n") # I'm using cat() rather than paste() here so that newline characters (\n) are respected. Within the paste() function, '\t' is a tab character.
+		}
+		
+
+	}
+
+
+
 	
 	# Create a blank list to fill in:
 	file.meta_information <- list()

@@ -8,88 +8,90 @@ file.text[1]
 
 #file_singleline_marker_locations <- grep('(```.*```|<code>.*</code>)', file.text, perl=TRUE)[1:2]
 
-vector_of_singleline_start_markers <- c("<code>", "<blockquote>","```")
+args$single_line_beginning_marker <- c("<code>", "<blockquote>","```")
 
-vector_of_singleline_end_markers <- c("</code>", "</blockquote>","```")
+args$single_line_closing_marker <- c("</code>", "</blockquote>","```")
 
-if(length(vector_of_singleline_start_markers) != length(vector_of_singleline_start_markers)){print("Not the same length")}
+if(length(args$single_line_beginning_marker) != length(args$single_line_beginning_marker)){print("Not the same length")}
 
+
+full_code_block_marker_dictionary_to_use <- data.frame("StartingMarker" = args$single_line_beginning_marker, "EndingMarker" = args$single_line_closing_marker)
 
 # Create a blank variable, which we'll fill in below:
-linesToRemove <- NULL
-file.text2 <- file.text
+file.text <- file.text
 
 # We already know that both vectors are the same length, so we can just use the length of one of them here in calculating an index over which to iterate:
-for(markerNumber in 1:length(vector_of_singleline_start_markers)){
-	print(paste("Marker is",vector_of_singleline_start_markers[markerNumber],vector_of_singleline_end_markers[markerNumber]))
-	
+for(markerNumber in 1:length(args$single_line_beginning_marker)){
+	if(args$verbose == TRUE){
+		print(paste("Processing marker '",args$single_line_beginning_marker[markerNumber], "' ... '",args$single_line_closing_marker[markerNumber],"'...", sep = ""))
+	}
+
 	# Only match lines that have an odd number of matches for each vector. This way, even if the start and end markers are identical, we control for there being a start and end marker on the same line. So we only want lines where there's a single start/end marker, or both a start and end marker, followed by another start marker, etc.:
-	matchingStartLines <- which(sapply(regmatches(file.text2, gregexpr(vector_of_singleline_start_markers[markerNumber], file.text2)), length) %% 2 == 1) # % is modulo (i.e., remainder)
-	#grep(vector_of_singleline_start_markers[markerNumber], file.text2, perl=TRUE)
-	matchingEndLines <- which(sapply(regmatches(file.text2, gregexpr(vector_of_singleline_end_markers[markerNumber], file.text2)), length) %% 2 == 1)
+	matchingStartLines <- which(sapply(regmatches(file.text, gregexpr(args$single_line_beginning_marker[markerNumber], file.text)), length) %% 2 == 1) # % is modulo (i.e., remainder)
+	#grep(args$single_line_beginning_marker[markerNumber], file.text, perl=TRUE)
+	matchingEndLines <- which(sapply(regmatches(file.text, gregexpr(args$single_line_closing_marker[markerNumber], file.text)), length) %% 2 == 1)
 	
 	# If the start and end markers are identical, the vectors of start- and end-lines will also be identical, which isn't right. In that case, we'll reconstruct the vectors by alternating between start and close.
-	if(vector_of_singleline_start_markers[markerNumber] == vector_of_singleline_end_markers[markerNumber]){
+	if(args$single_line_beginning_marker[markerNumber] == args$single_line_closing_marker[markerNumber]){
 		#sapply(regmatches(file.text, gregexpr('```',file.text)), length)
 		# Check if number is odd: `if (x %% 2) { # odd number }`
 		matchingStartLines <- matchingStartLines[seq(1,length(matchingEndLines),2)] # Get the odd elements.
 		matchingEndLines <- matchingEndLines[seq(2,length(matchingEndLines),2)] # Get the even elements.
 	}
 	
-	print("Matching lines are")
-	print(matchingStartLines)
-	print(matchingEndLines)
+	if(args$verbose == TRUE){
+		print("The lines matching the Start marker are as follows:")
+		print(matchingStartLines)
+		print("The lines matching the Closing marker are as follows:")
+		print(matchingEndLines)
+	}
 	
-	if(length(matchingStartLines) != length(matchingEndLines)){
-		print("Start and end lines aren't matched.")	
-	}else{
+	#if(length(matchingStartLines) != length(matchingEndLines)){
+	#	print("Start and end lines aren't matched.")	
+	#}else{
 		
 		minLengthOfMatchingLines <- min(length(matchingStartLines), length(matchingEndLines))
 		
 		if(length(minLengthOfMatchingLines) >= 1 ){ # If we have at least 1 line pair that match the pattern
-			#numberOfMatchingPairsOfLines <- floor(length(matchingLines)/2)
-			#print(paste("There are", numberOfMatchingPairsOfLines, "pairs of lines for this search parameter."))
 			# Combine pairs of lines, going through one pair at a time:
 			linesToRemove <- NULL # Wipe this from the last iteration. We'll fill it in again below.
 			
 			for(i in 1:minLengthOfMatchingLines){
-				print(i)
 				# First, replace the first line of text with all of the combined text. Later, we'll remove the other original lines (after we've done this for all pairs of matching lines -- so that index numbers aren't messed up as we go):
 				
 				# Make sure that the markers aren't on the same line -- if they are, we don't need to do anything further with them. Also, if the end line is on a higher line than the start line, there's probably something wrong, so we won't do anything with it, ether:
 				if(matchingStartLines[i] == matchingEndLines[i] || matchingStartLines[i] > matchingEndLines[i]){
-					print(paste("Start (", matchingStartLines[i], ") and end (", matchingEndLines[i], ") lines do not warrant further action. Passing over them..."), sep = "")
+					if(args$verbose == TRUE){
+						print(paste("Start (", matchingStartLines[i], ") and end (", matchingEndLines[i], ") lines do not warrant further action. Passing over them..."), sep = "")
+					}
 				} else { # If we SHOULD do something about the lines...
-					file.text2[matchingStartLines[i]] <- paste(file.text2[matchingStartLines[i]:matchingEndLines[i]], collapse = "\n") # Combine everything between the two line numbers.
+					
+					# Now that we've looped through consolidating text, remove the original subsequent lines of text:
+					
+					file.text[matchingStartLines[i]] <- paste(file.text[matchingStartLines[i]:matchingEndLines[i]], collapse = "\n") # Combine everything between the two line numbers.
 					linesToRemove <- c(linesToRemove,(matchingStartLines[i]+1):matchingEndLines[i])
-					print("Lines to remove are")
-					print(linesToRemove)
+					if(args$verbose == TRUE){
+						print("Removing the following now-vestigial lines:")
+						print(linesToRemove)
+					}
 				}
 			}
 			
 			# Remove the lines, if there are any to remove:
 			if(length(linesToRemove > 0)){
-				file.text2 <- file.text2[-linesToRemove]
+				file.text <- file.text[-linesToRemove]
 			}
 			
-			print("File.text2 is now")
-			print(file.text2)
+			# The lines below are very nice for debugging, but would probably be overkill in normal output, even if the user did ask for verbosity. Thus, I'm commenting them out for now.
+			#if(args$verbose == TRUE){	
+			#	print("The current processed state of the input text is now as follows:e file is now as follows:")
+			#	print(file.text)
+			#}
 		}
-	}
+	#} # End of "If length of start and end lines is equal" block.
 }
-# Now that we've looped through consolidating text, remove the original subsequent lines of text:
-
-# First, consolidate the pairs of line numbers, such that if there are line number pairs that fit within other pairs, we just end up using the first set of pairs.
-
-# Second, actually remove the lines:
 
 
-file.text2
+file.text
 
-
-#listOfLineNumbers <- grep('(</?code>|</?blockquote>|```)', file.text, perl=TRUE)
-
-#listOfLineNumbers
-
-#file.text[listOfLineNumbers]
 
