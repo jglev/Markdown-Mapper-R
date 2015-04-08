@@ -373,7 +373,7 @@ for(data_file_to_parse in args$files_to_parse){
 				
 				minLengthOfMatchingLines <- min(length(matchingStartLines), length(matchingEndLines))
 				
-				if(length(minLengthOfMatchingLines) >= 1 ){ # If we have at least 1 line pair that match the pattern
+				if(minLengthOfMatchingLines >= 1 ){ # If we have at least 1 line pair that match the pattern
 					# Combine pairs of lines, going through one pair at a time:
 					linesToRemove <- NULL # Wipe this from the last iteration. We'll fill it in again below.
 					
