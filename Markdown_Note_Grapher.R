@@ -356,10 +356,9 @@ for(data_file_to_parse in args$files_to_parse){
 			if(args$single_line_beginning_marker[markerNumber] == args$single_line_closing_marker[markerNumber] && 
 				length(matchingStartLines) >= 2 && length(matchingEndLines) >= 2
 			){
-				#sapply(regmatches(file.text, gregexpr('```',file.text)), length)
 				# Check if number is odd: `if (x %% 2) { # odd number }`
-				matchingStartLines <- matchingStartLines[seq(1,ifelse(length(matchingEndLines) >= 1, length(matchingEndLines), 1),2)] # Get the odd elements.
-				matchingEndLines <- matchingEndLines[seq(2,ifelse(length(matchingStartLines) >= 2, length(matchingStartLines), 2),2)] # Get the even elements.
+				matchingStartLines <- matchingStartLines[seq(1,ifelse(length(matchingStartLines) >= 1, length(matchingStartLines), 1),2)] # Get the odd elements.
+				matchingEndLines <- matchingEndLines[seq(2,ifelse(length(matchingEndLines) >= 2, length(matchingEndLines), 2),2)] # Get the even elements.
 			}
 			
 			if(args$verbose == TRUE){
@@ -393,14 +392,15 @@ for(data_file_to_parse in args$files_to_parse){
 							
 							file.text[matchingStartLines[i]] <- paste(file.text[matchingStartLines[i]:matchingEndLines[i]], collapse = "\n") # Combine everything between the two line numbers.
 							linesToRemove <- c(linesToRemove,(matchingStartLines[i]+1):matchingEndLines[i])
-							if(args$verbose == TRUE){
-								print("Removing the following now-vestigial lines:")
-								print(linesToRemove)
-							}
 						}
 					}
 					
 					# Remove the lines, if there are any to remove:
+					if(args$verbose == TRUE){
+						print("Removing the following now-vestigial lines:")
+						print(linesToRemove)
+					}
+					
 					if(length(linesToRemove > 0)){
 						file.text <- file.text[-linesToRemove]
 					}
