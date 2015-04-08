@@ -1,4 +1,5 @@
-file.text <- scan("~/Desktop/Note-Taking_Network_Grapher/example2.txt", what = "list", sep = "\n", blank.lines.skip = TRUE)
+file.text <- scan("~/Desktop/Remote_MountPoints/Home_Computer_Home_Directory/Desktop/Note-Taking_Network_Grapher/example2.txt", what = "list", sep = "\n", blank.lines.skip = TRUE)
+#file.text <- scan("~/Desktop/Note-Taking_Network_Grapher/example2.txt", what = "list", sep = "\n", blank.lines.skip = TRUE)
 
 file.text
 file.text[1]
@@ -21,12 +22,17 @@ file.text2 <- file.text
 # We already know that both vectors are the same length, so we can just use the length of one of them here in calculating an index over which to iterate:
 for(markerNumber in 1:length(vector_of_singleline_start_markers)){
 	print(paste("Marker is",vector_of_singleline_start_markers[markerNumber],vector_of_singleline_end_markers[markerNumber]))
-	matchingStartLines <- grep(vector_of_singleline_start_markers[markerNumber], file.text2, perl=TRUE)
+	
+	# Only match lines that have an odd number of matches for each vector. This way, even if the start and end markers are identical, we control for there being a start and end marker on the same line. So we only want lines where there's a single start/end marker, or both a start and end marker, followed by another start marker, etc.:
+	matchingStartLines <- which(sapply(regmatches(file.text2, gregexpr(vector_of_singleline_start_markers[markerNumber], file.text2)), length) %% 2 == 1) # % is modulo (i.e., remainder)
+	#grep(vector_of_singleline_start_markers[markerNumber], file.text2, perl=TRUE)
 	matchingEndLines <- grep(vector_of_singleline_end_markers[markerNumber], file.text2, perl=TRUE)
 	
 	# If the start and end markers are identical, the vectors of start- and end-lines will also be identical, which isn't right. In that case, we'll reconstruct the vectors by alternating between start and close.
 	# NOTE WELL: This assumes that There won't be any lines that actually do have the multiline markers on a single line (e.g., '```Test```').
 	if(vector_of_singleline_start_markers[markerNumber] == vector_of_singleline_end_markers[markerNumber]){
+		#sapply(regmatches(file.text, gregexpr('```',file.text)), length)
+		# Check if number is odd: `if (x %% 2) { # odd number }`
 		matchingStartLines <- matchingStartLines[seq(1,length(matchingEndLines),2)] # Get the odd elements.
 		matchingEndLines <- matchingEndLines[seq(2,length(matchingEndLines),2)] # Get the even elements.
 	}

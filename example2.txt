@@ -5,8 +5,7 @@ This is some test text.
 </code>
 Not code
 
-```
-This is a test```
+```This is a test```
 
 ```
 More code
