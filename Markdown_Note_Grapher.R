@@ -798,8 +798,12 @@ for(data_file_to_parse in args$files_to_parse){
 if(args$disable_master_tag_list != TRUE){
 	message("The master list of all tags used in the given files is as follows:")
 	tag_list_to_print <- as.matrix(sort(table(master_tag_list), decreasing = TRUE))
-	colnames(tag_list_to_print) <- "Count"
-	print(tag_list_to_print)
+	if(nrow(tag_list_to_print) > 0){ # If there's anything to print, we'll print it.
+		colnames(tag_list_to_print) <- "Count"
+		print(tag_list_to_print)
+	} else { # If there's not anything to print, tell the user that:
+		print("[No tags found]")
+	}
 }
 
 if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
