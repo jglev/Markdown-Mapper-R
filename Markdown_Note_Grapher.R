@@ -390,7 +390,7 @@ for(data_file_to_parse in args$files_to_parse){
 							
 							# Now that we've looped through consolidating text, remove the original subsequent lines of text:
 							
-							file.text[matchingStartLines[i]] <- paste(file.text[matchingStartLines[i]:matchingEndLines[i]], collapse = "\n") # Combine everything between the two line numbers.
+							file.text[matchingStartLines[i]] <- paste(file.text[matchingStartLines[i]:matchingEndLines[i]], collapse = "\n\n") # Combine everything between the two line numbers.
 							linesToRemove <- c(linesToRemove,(matchingStartLines[i]+1):matchingEndLines[i])
 						}
 					}
@@ -806,78 +806,86 @@ if(args$disable_master_tag_list != TRUE){
 	}
 }
 
-if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
-	checkPackage('qgraph', verbose = args$verbose)
-	checkPackage('methods', verbose = args$verbose) # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
-	
-	pdf(file = NULL) # This isn't here because we're writing a pdf or anything else at this point. Rather, its here following so that R has an open display driver when it generates the graph below. Lacking this, a (blank) file called 'Rplots.pdf' is automatically created in the working directory. This happens as a result of running this script from Rscript, and happens even if 'DoNotPlot = TRUE' is set in qgraph().
-	graph <- qgraph(
-		edge_list[c("Source", "Target")],
-		esize=1,
-		gray=TRUE,
-		label.scale=TRUE,
-		curve=1,
-		curveAll=TRUE,
-		directed=FALSE,
-		layout='spring', # Can also be 'groups' or 'circular',
-		shape="circle",
-		border.width=.5,
-		labels=TRUE,
-		DoNotPlot=TRUE,
-		edge.labels=as.list(as.character(edge_list[["Relationship"]])),
-		edge.label.cex=.3
-	)
-}
+if(nrow(edge_list) >= 1) { # If we have anything to graph, do so...
+	if(args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != ""){
+		checkPackage('qgraph', verbose = args$verbose)
+		checkPackage('methods', verbose = args$verbose) # Per http://t4007.science-graph-igraph-general.sciencetalk.info/could-not-find-function-is-in-graph-adjacency-t4007.html, if this script is being called from RScript, this needs to be explicitly called. Calling it solves an error: 'could not find function "is"'.
+		pdf(file = NULL) # This isn't here because we're writing a pdf or anything else at this point. Rather, its here following so that R has an open display driver when it generates the graph below. Lacking this, a (blank) file called 'Rplots.pdf' is automatically created in the working directory. This happens as a result of running this script from Rscript, and happens even if 'DoNotPlot = TRUE' is set in qgraph().
+		graph <- qgraph(
+			edge_list[c("Source", "Target")],
+			esize=1,
+			gray=TRUE,
+			label.scale=TRUE,
+			curve=1,
+			curveAll=TRUE,
+			directed=FALSE,
+			layout='spring', # Can also be 'groups' or 'circular',
+			shape="circle",
+			border.width=.5,
+			labels=TRUE,
+			DoNotPlot=TRUE,
+			edge.labels=as.list(as.character(edge_list[["Relationship"]])),
+			edge.label.cex=.3
+		)
+	}
 
-if(args$disable_quick_view_graph != TRUE){
-	message("Generating quick-view network graph...")
-	
-	# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
-	X11(
-		width=11,
-		height=8.5
-	)
-	plot(graph)
-	#dev.off()
-	
-	# For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
-	#library('playwith')
-	#playwith(plot(graph))
+	if(args$disable_quick_view_graph != TRUE){
+		message("Generating quick-view network graph...")
+		
+		# To enable plotting when called from RScript, per http://stackoverflow.com/a/3302401
+		X11(
+			width=11,
+			height=8.5
+		)
+		plot(graph)
+		#dev.off()
+		
+		# For non-RScript work, playwith() allows resizing plots dynamically. It doesn't seem to allow zooming with qgraph output, but the window itself can be resized, which is a nice feature.
+		#library('playwith')
+		#playwith(plot(graph))
 
-	# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
-	checkPackage('tcltk')
-	message("Press OK in the window to continue.") # This message will show up in the console.
-	tk_messageBox(type = "ok", message = "Press OK to continue") # This will pop-up a box with an "OK" button to click to continue. This works better than 'readLines("stdin", n=1)', because it doesn't break if you're passing stdin to the script.
-	#user_typed_response <- readLines("stdin", n=1)
+		# To stop plots from terminating when the script finishes after being called from RScript, per http://stackoverflow.com/a/3302401
+		checkPackage('tcltk')
+		message("Press OK in the window to continue.") # This message will show up in the console.
+		tk_messageBox(type = "ok", message = "Press OK to continue") # This will pop-up a box with an "OK" button to click to continue. This works better than 'readLines("stdin", n=1)', because it doesn't break if you're passing stdin to the script.
+		#user_typed_response <- readLines("stdin", n=1)
 
-} # End of if() statement for plotting quick-view graph.
+	} # End of if() statement for plotting quick-view graph.
 
 
-if(args$quick_view_graph_name != ""){ # If we've been given anything here, we'll take it as a filepath, and save a PDF to it.
-	# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
-	
-	plot_title <- paste("Map of [", paste(args$files_to_parse, collapse = ", "), "]")
-	pdf_map_output_filename <- args$quick_view_graph_name
-	
-	#png(file="animals45.png",width=1200,height=800,res=300)
-	pdf(
-		file=pdf_map_output_filename, 
-		width=11, 
-		height=8.5,
-		title=plot_title # This is the title within the title.
-	)
-	par(oma=c(0,0,0,0)) # From http://stackoverflow.com/a/13631358. '?par' states that oma is 'a vector of the form c(bottom, left, top, right) giving the size of the outer margins in lines of text.' We're here adding space for a title.
-	plot(graph)
-	title(
-		main=NULL, 
-		sub=plot_title,
-		xlab=NULL,
-		ylab=NULL
-	)
-	dev.off()
-	
-	message("File saved to '", pdf_map_output_filename,"'")
-} # End of 'if(args$quick_view_graph_name != "")' statement
+	if(args$quick_view_graph_name != ""){ # If we've been given anything here, we'll take it as a filepath, and save a PDF to it.
+		# This follows the advice of http://blog.revolutionanalytics.com/2009/01/10-tips-for-making-your-r-graphics-look-their-best.html
+		
+		plot_title <- paste("Map of [", paste(args$files_to_parse, collapse = ", "), "]")
+		pdf_map_output_filename <- args$quick_view_graph_name
+		
+		#png(file="animals45.png",width=1200,height=800,res=300)
+		pdf(
+			file=pdf_map_output_filename, 
+			width=11, 
+			height=8.5,
+			title=plot_title # This is the title within the title.
+		)
+		par(oma=c(0,0,0,0)) # From http://stackoverflow.com/a/13631358. '?par' states that oma is 'a vector of the form c(bottom, left, top, right) giving the size of the outer margins in lines of text.' We're here adding space for a title.
+		plot(graph)
+		title(
+			main=NULL, 
+			sub=plot_title,
+			xlab=NULL,
+			ylab=NULL
+		)
+		dev.off()
+		
+		message("File saved to '", pdf_map_output_filename,"'")
+	} # End of 'if(args$quick_view_graph_name != "")' statement
+
+
+} else { # If there's not anything to graph...
+	if(args$link_edges_to_themselves == FALSE && (args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != "")) {
+		print("[No edges to graph. If you would like to graph standalone nodes, please use the --link-edges-to-themselves flag.]")
+	}
+} # End of if() statement checking if there's anything to graph.
+
 
 
 if(args$edge_list_name != ""){ # If we've been given anything here, we'll take it as a filepath, and save the edge list to it.
