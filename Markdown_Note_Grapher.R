@@ -8,7 +8,6 @@
 # (If you would like to redistribute the code under other license terms, please contact the author)
 ##############################
 
-
 # NOTE WELL: Although this script gives limited information on the tags ('+tag') used in files passed to it, I alternatively recommend this bash function for getting tag counts:
 
 # function search-file-for-tags() { # This lets you search a file to see all unique tags (starting, e.g., with '@' or '+') in a given file.
@@ -25,22 +24,22 @@
 # Define a function that installs a package if it can't be found:
 checkPackage <- function(packageName, verbose = FALSE){
 	if(verbose == TRUE){
-		print(paste("Attempting to load package '", packageName, "'...", sep=""))
+		message(paste("Attempting to load package '", packageName, "'...", sep=""))
 	}
 	if(suppressMessages(!require(packageName, character.only = TRUE))){
-		print(paste("The package '", packageName, "' wasn't found, so we'll try to install it now..."), sep="")
+		message(paste("The package '", packageName, "' wasn't found, so we'll try to install it now..."), sep="")
 		
 		# If the package is installed successfully, load it. Otherwise, give an error.
 		install.packages(packageName, repos = "http://cran.r-project.org")
 		if(verbose == TRUE){
-			print("Package installed, so we'll try to load it now...")	
+			message("Package installed, so we'll try to load it now...")	
 			require(packageName, character.only = TRUE)
 		} else { # If verbose is NOT set to TRUE:
 			suppressMessages(require(packageName, character.only = TRUE))
 		}
 	}else{
 		if(verbose == TRUE){
-			print("Package loaded successfully.")	
+			message("Package loaded successfully.")	
 		}
 	}
 }
@@ -306,7 +305,7 @@ master_tag_list <- NULL
 
 for(data_file_to_parse in args$files_to_parse){
 	if(args$verbose == TRUE){
-		print(paste("Processing file '", data_file_to_parse, "'..."))
+		message(paste("Processing file '", data_file_to_parse, "'..."))
 	}
 	
 	#data_file_to_parse <- 
@@ -344,7 +343,7 @@ for(data_file_to_parse in args$files_to_parse){
 		# We already know that both vectors are the same length, so we can just use the length of one of them here in calculating an index over which to iterate:
 		for(markerNumber in 1:length(args$single_line_beginning_marker)){
 			if(args$verbose == TRUE){
-				print(paste("Processing marker '",args$single_line_beginning_marker[markerNumber], "' ... '",args$single_line_closing_marker[markerNumber],"'...", sep = ""))
+				message(paste("Processing marker '",args$single_line_beginning_marker[markerNumber], "' ... '",args$single_line_closing_marker[markerNumber],"'...", sep = ""))
 			}
 
 			# Only match lines that have an odd number of matches for each vector. This way, even if the start and end markers are identical, we control for there being a start and end marker on the same line. So we only want lines where there's a single start/end marker, or both a start and end marker, followed by another start marker, etc.:
@@ -362,14 +361,14 @@ for(data_file_to_parse in args$files_to_parse){
 			}
 			
 			if(args$verbose == TRUE){
-				print("The lines matching the Start marker are as follows:")
+				message("The lines matching the Start marker are as follows:")
 				print(matchingStartLines)
-				print("The lines matching the Closing marker are as follows:")
+				message("The lines matching the Closing marker are as follows:")
 				print(matchingEndLines)
 			}
 			
 			#if(length(matchingStartLines) != length(matchingEndLines)){
-			#	print("Start and end lines aren't matched.")	
+			#	message("Start and end lines aren't matched.")	
 			#}else{
 				
 				minLengthOfMatchingLines <- min(length(matchingStartLines), length(matchingEndLines))
@@ -384,7 +383,7 @@ for(data_file_to_parse in args$files_to_parse){
 						# Make sure that the markers aren't on the same line -- if they are, we don't need to do anything further with them. Also, if the end line is on a higher line than the start line, there's probably something wrong, so we won't do anything with it, ether:
 						if(matchingStartLines[i] == matchingEndLines[i] || matchingStartLines[i] > matchingEndLines[i]){
 							if(args$verbose == TRUE){
-								print(paste("Start (", matchingStartLines[i], ") and end (", matchingEndLines[i], ") lines do not warrant further action. Passing over them..."), sep = "")
+								message(paste("Start (", matchingStartLines[i], ") and end (", matchingEndLines[i], ") lines do not warrant further action. Passing over them..."), sep = "")
 							}
 						} else { # If we SHOULD do something about the lines...
 							
@@ -397,7 +396,7 @@ for(data_file_to_parse in args$files_to_parse){
 					
 					# Remove the lines, if there are any to remove:
 					if(args$verbose == TRUE){
-						print("Removing the following now-vestigial lines:")
+						message("Removing the following now-vestigial lines:")
 						print(linesToRemove)
 					}
 					
@@ -407,8 +406,8 @@ for(data_file_to_parse in args$files_to_parse){
 					
 					# The lines below are very nice for debugging, but would probably be overkill in normal output, even if the user did ask for verbosity. Thus, I'm commenting them out for now.
 					#if(args$verbose == TRUE){	
-					#	print("The current processed state of the input text is now as follows:e file is now as follows:")
-					#	print(file.text)
+					#	message("The current processed state of the input text is now as follows:e file is now as follows:")
+					#	message(file.text)
 					#}
 				}
 			#} # End of "If length of start and end lines is equal" block.
@@ -537,17 +536,17 @@ for(data_file_to_parse in args$files_to_parse){
 	
 	if(args$link_edges_to_themselves == TRUE){ # If we've been told not to create dummy nodes for each line of text (see below for a fuller explanation -- this code is here just so that this message doesn't get printed for each line of text)...
 		if(args$verbose == TRUE){ 
-			print("Including a dummy edge for each text line in the network graph (in which each text line is linked to itself), in order to ensure that all text lines, even those that are not connected to anything else, are included in the network graph)...")
+			message("Including a dummy edge for each text line in the network graph (in which each text line is linked to itself), in order to ensure that all text lines, even those that are not connected to anything else, are included in the network graph)...")
 		}	
 	} else {
 		if(args$verbose == TRUE){ 
-			print("NOT including a dummy edge for each text line in the network graph. This can result in edges that are not connected to anything else (tags, metadata, filenames, etc.) to be left out of the graph...")
+			message("NOT including a dummy edge for each text line in the network graph. This can result in edges that are not connected to anything else (tags, metadata, filenames, etc.) to be left out of the graph...")
 		}	
 	}
 	
 	# Loop through the text and make an edge list from it:
 	for(line_number in 1:length(file.hard_wrapped_text)){
-		# print(paste("Processing line number", line_number, "...")) # Good for debugging.
+		# message(paste("Processing line number", line_number, "...")) # Good for debugging.
 		
 		text_line <- file.hard_wrapped_text[line_number]
 		
@@ -712,10 +711,10 @@ for(data_file_to_parse in args$files_to_parse){
 	#as.data.frame(yaml_metadata_for_file.parsed)[1,][1]
 	#file_name
 	if(length(yaml_metadata_for_file.parsed) > 0){
-		# print(paste("The parsed YAML Metadata for the file is as follows:", yaml_metadata_for_file.parsed)) # Good for debugging.
+		# message(paste("The parsed YAML Metadata for the file is as follows:", yaml_metadata_for_file.parsed)) # Good for debugging.
 		if(args$suppress_file_metadata != TRUE){ # If we haven't been told not to pay attention to the metadata...
 			if(args$verbose == TRUE){ 
-				print("Including file metadata in network graph...")
+				message("Including file metadata in network graph...")
 			}
 
 			# Check whether we're supposed to only use specific pieces of metadata; if so, only add those to the graph. Otherwise, add all pieces of metadata to the graph:
@@ -731,7 +730,7 @@ for(data_file_to_parse in args$files_to_parse){
 
 				if(tolower(yaml_title) %in% tolower(list_of_metadata_lines_to_use)) { # Check whether the piece of metadata that we're currently looking at is in the list of metadata that we're supposed to use (which was set above)...
 					if(args$verbose == TRUE){
-						print(paste("Including metadata '", yaml_title, "'...", sep = ""))
+						message(paste("Including metadata '", yaml_title, "'...", sep = ""))
 					}
 										
 					edge_list <- rbind(
@@ -744,7 +743,7 @@ for(data_file_to_parse in args$files_to_parse){
 					)
 				} else { # If the metadata ISN'T in the list that we're supposed to use...
 					if(args$verbose == TRUE){
-						print(paste("NOT including metadata '", yaml_title, "'...", sep = ""))
+						message(paste("NOT including metadata '", yaml_title, "'...", sep = ""))
 					}
 				}
 			}
@@ -752,14 +751,14 @@ for(data_file_to_parse in args$files_to_parse){
 		} # End of 'If suppress_file_metadata != TRUE' statement.
 		else { # If we HAVE been told not to include metadata in the network map...
 			if(args$verbose == TRUE){ 
-				print("NOT including file metadata in network graph...")
+				message("NOT including file metadata in network graph...")
 			}
 		}
 	} # End if(length(yaml_metadata_for_file.parsed) > 0) satement
 
 	if(args$suppress_file_names != TRUE){ # If we haven't been told not to pay attention to the filenames...
 		if(args$verbose == TRUE){ 
-			print("Including filenames in network graph...")
+			message("Including filenames in network graph...")
 		}
 		edge_list <- rbind(
 		edge_list,
@@ -771,7 +770,7 @@ for(data_file_to_parse in args$files_to_parse){
 		)
 	} else { # If we ARE supposed to ignore filenames when constructing the graph...
 		if(args$verbose == TRUE){
-			print("NOT including filenames in network graph...")
+			message("NOT including filenames in network graph...")
 		}
 	}
 	
@@ -802,7 +801,7 @@ if(args$disable_master_tag_list != TRUE){
 		colnames(tag_list_to_print) <- "Count"
 		print(tag_list_to_print)
 	} else { # If there's not anything to print, tell the user that:
-		print("[No tags found]")
+		message("[No tags found]")
 	}
 }
 
@@ -882,7 +881,7 @@ if(nrow(edge_list) >= 1) { # If we have anything to graph, do so...
 
 } else { # If there's not anything to graph...
 	if(args$link_edges_to_themselves == FALSE && (args$disable_quick_view_graph != TRUE || args$quick_view_graph_name != "")) {
-		print("[No edges to graph. If you would like to graph standalone nodes, please use the --link-edges-to-themselves flag.]")
+		message("[No edges to graph. If you would like to graph standalone nodes, please use the --link-edges-to-themselves flag.]")
 	}
 } # End of if() statement checking if there's anything to graph.
 
