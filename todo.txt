@@ -1,2 +1,0 @@
-* Update Readme with info. about installing a package in R first to set up a local library directory.
-* Update Readme with current version number and list of recent changes.

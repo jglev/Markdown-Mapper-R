@@ -6,6 +6,7 @@
 # January 2015
 # Distributed under the GPLv2 License
 # (If you would like to redistribute the code under other license terms, please contact the author)
+# Version 0.1.2
 ##############################
 
 # NOTE WELL: Although this script gives limited information on the tags ('+tag') used in files passed to it, I alternatively recommend this bash function for getting tag counts:
