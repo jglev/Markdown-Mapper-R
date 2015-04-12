@@ -1,25 +1,24 @@
 This is some test text.
+
 <code>
 	Here is some code.
 	And some more.
 </code>
-Not code
 
-```This is a test``` ```More code
+This line is not code.
 
-	And some more.
+```Additional test code.``` ```More code
+
+And some more.
 ```
 
 ```
-More code
+This is more code.
+
 <blockquote>
-Text from a blockquote here.
+This is text from a blockquote, within a code block.
 </blockquote>
 ```
+
 More not code.
 And even more not code.
-```
-	<blockquote>
-	Tester
-More test.
-</blockquote>```
